@@ -329,6 +329,7 @@ namespace JonasOchJohansMataffär
                 }
                 else
                 {
+                    //Söker och tar fram raden som matchar artikelnamnet, använder first eftersom vi utgår från att det enbart finns en av de namnet och vi vill enbart ha en rad att arbeta med.
                     DataRow result = tableForCart.Select().Where(row => row.Field<string>("Article Name") == products[articleList.SelectedIndex].ArticleName).First();
                     int newAmount = int.Parse(result[2].ToString()) + 1;
                     result[2] = newAmount;
