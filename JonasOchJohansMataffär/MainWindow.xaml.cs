@@ -21,7 +21,7 @@ namespace JonasOchJohansMataffär
     {
         public Image articleImage;
         public ComboBox articleList;
-        public TextBlock header;
+        public TextBlock titleHeader;
         public Label articleDescription;
         public TextBox storeAmount;
         public DataColumn cartAmount;
@@ -138,14 +138,14 @@ namespace JonasOchJohansMataffär
             articleList.SelectionChanged += ArticleList_SelectionChanged;
             articles.Children.Add(articleList);
             //Header over article list
-            header = new TextBlock
+            titleHeader = new TextBlock
             {
                 Text = "Articles",
                 IsHitTestVisible = false,
                 Margin = new Thickness(5),
                 Padding = new Thickness(5)
             };
-            articles.Children.Add(header);
+            articles.Children.Add(titleHeader);
             //Label to describe the chosen article
             articleDescription = new Label
             {
@@ -347,7 +347,7 @@ namespace JonasOchJohansMataffär
 
         private void ArticleList_DropDownOpened(object sender, EventArgs e)
         {
-            header.Text = "";
+            titleHeader.Text = "";
         }
 
         //event handlers
