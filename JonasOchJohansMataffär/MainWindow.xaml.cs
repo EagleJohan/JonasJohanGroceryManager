@@ -335,6 +335,23 @@ namespace JonasOchJohansMataffär
                     result[2] = newAmount;
                 }
             }
+            Button plus = new Button { Content = "+", Margin = new Thickness(5) };
+
+            Button minus = new Button { Content = "-", Margin = new Thickness(5) };
+
+            ImageSource source = new BitmapImage(new Uri(@"Pictures\Trashcan.png", UriKind.Relative));
+            Image trashCan = new Image
+            {
+                Source = source,
+                Width = 25,
+                Height = 25,
+                Stretch = Stretch.UniformToFill,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(5)
+            };
+
+            Button delete = new Button { Content = trashCan, Margin = new Thickness(5) };
         }
 
         private void ArticleList_SelectionChanged(object sender, SelectionChangedEventArgs e)
