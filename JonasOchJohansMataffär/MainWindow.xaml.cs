@@ -17,6 +17,7 @@ namespace JonasOchJohansMataffär
         public decimal ArticlePrice { get; set; }
         public string ArticleDescription { get; set; }
     }
+
     public partial class MainWindow : Window
     {
         public Image articleImage;
@@ -31,9 +32,11 @@ namespace JonasOchJohansMataffär
         public Button addToCartButton;
         public List<string[]> file = File.ReadLines(@"Documents\utbud.csv").Select(a => a.Split(';')).ToList();
         public List<Product> products = new List<Product>();
-        public List<Product> cart = new List<Product>();
+        public Dictionary<Product, int> cart = new Dictionary<Product, int>();
+
         //public DataTable tableForCart;
         public Dictionary<Product, int> CartItems;
+
         public StackPanel cartPanel;
 
         public MainWindow()
@@ -233,7 +236,7 @@ namespace JonasOchJohansMataffär
             Grid.SetRow(cartGrid, 1);
             cartGrid.Margin = new Thickness(5);
             cartGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            cartGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(90, GridUnitType.Star)});
+            cartGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(90, GridUnitType.Star) });
             cartGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(10, GridUnitType.Star) });
             cartPanel = new StackPanel
             {
@@ -241,41 +244,20 @@ namespace JonasOchJohansMataffär
                 Margin = new Thickness(5),
             };
             cartGrid.Children.Add(cartPanel);
-            /*
-            // Cart with price and description
-            DataGrid gridForCart = new DataGrid();
-            cartGrid.Children.Add(gridForCart);
-            //Datatable for handling articles in customers cart
-            tableForCart = new DataTable();
-            //Fixed values has readonly set to true
-            tableForCart.Columns.Add(new DataColumn
-            {
-                ReadOnly = true,
-                ColumnName = "Article Name",
-                DataType = typeof(string)
-            });
-            tableForCart.Columns.Add(new DataColumn
-            {
-                ReadOnly = true,
-                ColumnName = "Price",
-                DataType = typeof(decimal)
-            });
-            // amount and delete is dynamic
-            cartAmount = new DataColumn
-            {
-                ColumnName = "Amount",
-                DataType = typeof(int)
-            };
-            tableForCart.Columns.Add(cartAmount);
-            isDeleted = new DataColumn
-            {
-                ColumnName = "Delete",
-                DataType = typeof(bool)
-            };
-            tableForCart.Columns.Add(isDeleted);
-            gridForCart.ItemsSource = tableForCart.DefaultView;
-            */
-
+            Grid cartItemHeaderGrid = new Grid();
+            cartItemHeaderGrid.RowDefinitions.Add(new RowDefinition());
+            cartItemHeaderGrid.ColumnDefinitions.Add(new ColumnDefinition { MinWidth = 270 });
+            cartItemHeaderGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            cartItemHeaderGrid.ColumnDefinitions.Add(new ColumnDefinition { MinWidth = 160 });
+            Label name = new Label { Content = "Titel" };
+            cartItemHeaderGrid.Children.Add(name);
+            Label price = new Label { Content = "price" };
+            cartItemHeaderGrid.Children.Add(price);
+            Grid.SetColumn(price, 1);
+            Label quantity = new Label { Content = "quantity" };
+            Grid.SetColumn(quantity, 2);
+            cartItemHeaderGrid.Children.Add(quantity);
+            cartPanel.Children.Add(cartItemHeaderGrid);
             //Grid for discount codes, clear shopping cart and print receipt
             Grid checkOutGrid = new Grid();
             cartGrid.Children.Add(checkOutGrid);
@@ -324,65 +306,74 @@ namespace JonasOchJohansMataffär
 
         private void AddToCartButton_Click(object sender, RoutedEventArgs e)
         {
-            /*
             for (int i = 0; i < int.Parse(storeAmount.Text); i++)
             {
-                bool exists = tableForCart.AsEnumerable().Any(row => row.Field<string>("Article Name") == products[articleList.SelectedIndex].ArticleName);
-                if (!exists)
+                if (!cart.ContainsKey(products[articleList.SelectedIndex]))
                 {
-                    DataRow newRow = tableForCart.NewRow();
-                    newRow[0] = products[articleList.SelectedIndex].ArticleName;
-                    newRow[1] = products[articleList.SelectedIndex].ArticlePrice;
-                    newRow[2] = 1;
-                    newRow[3] = false;
-                    tableForCart.Rows.Add(newRow);
-
+                    cart.Add(products[articleList.SelectedIndex], 1);
                 }
                 else
                 {
-                    //Söker och tar fram raden som matchar artikelnamnet, använder first eftersom vi utgår från att det enbart finns en av de namnet och vi vill enbart ha en rad att arbeta med.
-                    DataRow result = tableForCart.Select().Where(row => row.Field<string>("Article Name") == products[articleList.SelectedIndex].ArticleName).First();
-                    int newAmount = int.Parse(result[2].ToString()) + 1;
-                    result[2] = newAmount;
+                    cart[products[articleList.SelectedIndex]]++;
                 }
             }
-            */
-            Grid cartItemGrid = new Grid { Margin = new Thickness(5)};
+            Grid cartItemGrid = new Grid { Margin = new Thickness(5) };
             cartPanel.Children.Add(cartItemGrid);
             cartItemGrid.RowDefinitions.Add(new RowDefinition());
+            cartItemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto, MinWidth = 270 });
             cartItemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             cartItemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             cartItemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             cartItemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             cartItemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            cartItemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            Label name = new Label { Content = "Titel"};
+            cartItemGrid.ShowGridLines = true;
+            Label name = new Label { Content = articleList.SelectedItem };
             cartItemGrid.Children.Add(name);
-            Label price = new Label { Content = "price" };
+            Label price = new Label { Content = products[articleList.SelectedIndex].ArticlePrice };
             cartItemGrid.Children.Add(price);
             Grid.SetColumn(price, 1);
-            Label quantity = new Label { Content = "quantity" };
+            Label quantity = new Label { Content = "1" };
             cartItemGrid.Children.Add(quantity);
             Grid.SetColumn(quantity, 2);
 
-            Button plus = new Button { Content = "+", Margin = new Thickness(5) };
-
-            Button minus = new Button { Content = "-", Margin = new Thickness(5) };
-
-            ImageSource source = new BitmapImage(new Uri(@"Pictures\Trashcan.png", UriKind.Relative));
-            Image trashCan = new Image
+            Button minus = new Button
             {
-                Source = source,
-                Width = 25,
-                Height = 25,
-                Stretch = Stretch.UniformToFill,
+                Content = "-",
+                Margin = new Thickness(5),
+                Padding = new Thickness(5),
+                Tag = products[articleList.SelectedIndex]
+            };
+            cartItemGrid.Children.Add(minus);
+            Grid.SetColumn(minus, 3);
+            Button plus = new Button
+            {
+                Content = "+",
+                Margin = new Thickness(5),
+                Padding = new Thickness(5),
+                Tag = products[articleList.SelectedIndex]
+            };
+            cartItemGrid.Children.Add(plus);
+            Grid.SetColumn(plus, 4);
+
+            Image trashcanImage = new Image
+            {
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(5)
+                Margin = new Thickness(5),
+                Stretch = Stretch.Fill,
+                Width = 20,
+                Height = 20,
+                Source = ReadImage(@"Pictures\Trashcan.png")
             };
-
-            Button delete = new Button { Content = trashCan, Margin = new Thickness(5) };
-
+            Button delete = new Button
+            {
+                Margin = new Thickness(5),
+                Content = trashcanImage,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Tag = products[articleList.SelectedIndex]
+            };
+            cartItemGrid.Children.Add(delete);
+            Grid.SetColumn(delete, 5);
         }
 
         private void ArticleList_SelectionChanged(object sender, SelectionChangedEventArgs e)
