@@ -32,7 +32,9 @@ namespace JonasOchJohansMataffär
         public List<string[]> file = File.ReadLines(@"Documents\utbud.csv").Select(a => a.Split(';')).ToList();
         public List<Product> products = new List<Product>();
         public List<Product> cart = new List<Product>();
-        public DataTable tableForCart;
+        //public DataTable tableForCart;
+        public Dictionary<Product, int> CartItems;
+        public StackPanel cartPanel;
 
         public MainWindow()
         {
@@ -233,7 +235,13 @@ namespace JonasOchJohansMataffär
             cartGrid.ColumnDefinitions.Add(new ColumnDefinition());
             cartGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(90, GridUnitType.Star)});
             cartGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(10, GridUnitType.Star) });
-
+            cartPanel = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                Margin = new Thickness(5),
+            };
+            cartGrid.Children.Add(cartPanel);
+            /*
             // Cart with price and description
             DataGrid gridForCart = new DataGrid();
             cartGrid.Children.Add(gridForCart);
@@ -266,6 +274,8 @@ namespace JonasOchJohansMataffär
             };
             tableForCart.Columns.Add(isDeleted);
             gridForCart.ItemsSource = tableForCart.DefaultView;
+            */
+
             //Grid for discount codes, clear shopping cart and print receipt
             Grid checkOutGrid = new Grid();
             cartGrid.Children.Add(checkOutGrid);
@@ -314,6 +324,7 @@ namespace JonasOchJohansMataffär
 
         private void AddToCartButton_Click(object sender, RoutedEventArgs e)
         {
+            /*
             for (int i = 0; i < int.Parse(storeAmount.Text); i++)
             {
                 bool exists = tableForCart.AsEnumerable().Any(row => row.Field<string>("Article Name") == products[articleList.SelectedIndex].ArticleName);
@@ -335,6 +346,25 @@ namespace JonasOchJohansMataffär
                     result[2] = newAmount;
                 }
             }
+            */
+            Grid cartItemGrid = new Grid { Margin = new Thickness(5)};
+            cartPanel.Children.Add(cartItemGrid);
+            cartItemGrid.RowDefinitions.Add(new RowDefinition());
+            cartItemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            cartItemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            cartItemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            cartItemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            cartItemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            cartItemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            Label name = new Label { Content = "Titel"};
+            cartItemGrid.Children.Add(name);
+            Label price = new Label { Content = "price" };
+            cartItemGrid.Children.Add(price);
+            Grid.SetColumn(price, 1);
+            Label quantity = new Label { Content = "quantity" };
+            cartItemGrid.Children.Add(quantity);
+            Grid.SetColumn(quantity, 2);
+
         }
 
         private void ArticleList_SelectionChanged(object sender, SelectionChangedEventArgs e)
