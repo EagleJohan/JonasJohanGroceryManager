@@ -11,6 +11,40 @@ using System.Windows.Media.Imaging;
 
 namespace JonasOchJohansMataffär
 {
+    public static class CSVutility
+    {
+        public static void ToCSV(this DataTable dtDataTable, string strFilePath)
+        {
+            StreamWriter sw = new StreamWriter(strFilePath, false);
+            //headers
+            for (int i = 0; i < dtDataTable.Columns.Count; i++)
+            {
+                sw.Write(dtDataTable.Columns[i]);
+                if (i < dtDataTable.Columns.Count - 1)
+                {
+                    sw.Write(";");
+                }
+            }
+            sw.Write(sw.NewLine);
+            foreach (DataRow row in dtDataTable.Rows)
+            {
+                for (int i = 0; i < dtDataTable.Columns.Count; i++)
+                {
+                    if (!Convert.IsDBNull(row[i]))
+                    {
+                        sw.Write(row[i].ToString());
+                    }
+                    if (i < dtDataTable.Columns.Count - 1)
+                    {
+                        sw.Write(";");
+                    }
+                }
+                sw.Write(sw.NewLine);
+            }
+            sw.Close();
+        }
+    }
+
     public class Product
     {
         public string ArticleName { get; set; }
@@ -35,6 +69,7 @@ namespace JonasOchJohansMataffär
         public Label quantity;
         public DataTable tableForCart;
         public List<Product> cart = new List<Product>();
+        public DataGrid gridForCart;
 
         //public DataTable tableForCart;
         public Dictionary<Product, int> CartItems;
@@ -77,7 +112,7 @@ namespace JonasOchJohansMataffär
             };
             root.Content = grid;
             grid.Margin = new Thickness(5);
-            grid.RowDefinitions.Add(new RowDefinition());
+            grid.RowDefinitions.Add(new RowDefinition { MaxHeight = 50 });
             grid.RowDefinitions.Add(new RowDefinition());
             grid.ColumnDefinitions.Add(new ColumnDefinition());
             grid.ColumnDefinitions.Add(new ColumnDefinition());
@@ -92,7 +127,6 @@ namespace JonasOchJohansMataffär
                 VerticalContentAlignment = VerticalAlignment.Center
             };
             grid.Children.Add(storeTitle);
-
             Label cartTitle = new Label
             {
                 Content = "Kundvagn",
@@ -240,7 +274,7 @@ namespace JonasOchJohansMataffär
             cartGrid.ColumnDefinitions.Add(new ColumnDefinition());
             cartGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(90, GridUnitType.Star) });
             cartGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(10, GridUnitType.Star) });
-            DataGrid gridForCart = new DataGrid
+            gridForCart = new DataGrid
             {
                 CanUserAddRows = false,
                 CanUserDeleteRows = false,
@@ -250,6 +284,7 @@ namespace JonasOchJohansMataffär
                 CanUserSortColumns = false
             };
             gridForCart.CellEditEnding += GridForCart_CellEditEnding;
+            gridForCart.CellEditEnding += CheckIfCellDelete;
             cartGrid.Children.Add(gridForCart);
             //Datatable for handling articles in customers cart
             tableForCart = new DataTable();
@@ -321,26 +356,45 @@ namespace JonasOchJohansMataffär
                 Margin = new Thickness(5),
                 Padding = new Thickness(5)
             };
+            clearAllCart.Click += delegate { tableForCart.Rows.Clear(); };
             checkOutGrid.Children.Add(clearAllCart);
             Grid.SetColumn(clearAllCart, 3);
             #endregion
+            Closed += MainWindow_Closed;
+        }
+
+        private void MainWindow_Closed(object sender, EventArgs e)
+        {
+            tableForCart.ToCSV(@"C:\Windows\Temp\cart.txt");
+        }
+
+        private void CheckIfCellDelete(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            var checkBox = (CheckBox)e.EditingElement;
+            //If deleted is check, remove row
+            if (e.Column.Header.ToString() == "Delete" && (bool)checkBox.IsChecked)
+            {
+                tableForCart.Rows.RemoveAt(gridForCart.SelectedIndex);
+            }
         }
 
         private void GridForCart_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            int.TryParse(((TextBox)e.EditingElement).Text.ToString(), out int newAmount);
-            //Kollar så priset matchar produktpriset och om isDeleted är incheckat
-            foreach (var row in tableForCart.AsEnumerable())
+            if ("Amount" == e.Column.Header.ToString() || "Price" == e.Column.Header.ToString())
             {
-                int correctAmount = int.Parse(row[2].ToString());
-                if (newAmount > 0)
+                //Kollar så priset matchar produktpriset och om isDeleted är incheckat
+                foreach (var row in tableForCart.AsEnumerable())
                 {
-                    correctAmount = newAmount;
+                    int correctAmount = int.Parse(row[2].ToString());
+                    if (int.TryParse(((TextBox)e.EditingElement).Text.ToString(), out int newAmount) && "Amount" == e.Column.Header.ToString())
+                    {
+                        correctAmount = newAmount;
+                    }
+                    var productNames = products.Select(products => products.ArticleName).ToList();
+                    int indexOfProduct = productNames.IndexOf(row[0].ToString());
+                    row[2] = correctAmount;
+                    row[1] = correctAmount * products[indexOfProduct].ArticlePrice;
                 }
-                var productNames = products.Select(products => products.ArticleName).ToList();
-                int indexOfProduct = productNames.IndexOf(row[0].ToString());
-                row[2] = correctAmount;
-                row[1] = correctAmount * products[indexOfProduct].ArticlePrice;
             }
         }
 
@@ -357,7 +411,6 @@ namespace JonasOchJohansMataffär
                     newRow[2] = 1;
                     newRow[3] = false;
                     tableForCart.Rows.Add(newRow);
-
                 }
                 else
                 {
