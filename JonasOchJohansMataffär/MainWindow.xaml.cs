@@ -17,15 +17,15 @@ namespace JonasOchJohansMataffär
         {
             StreamWriter sw = new StreamWriter(strFilePath, false);
             //headers
-            for (int i = 0; i < dtDataTable.Columns.Count; i++)
-            {
-                sw.Write(dtDataTable.Columns[i]);
-                if (i < dtDataTable.Columns.Count - 1)
-                {
-                    sw.Write(";");
-                }
-            }
-            sw.Write(sw.NewLine);
+            //for (int i = 0; i < dtDataTable.Columns.Count; i++)
+            //{
+            //    sw.Write(dtDataTable.Columns[i]);
+            //    if (i < dtDataTable.Columns.Count - 1)
+            //    {
+            //        sw.Write(";");
+            //    }
+            //}
+            //sw.Write(sw.NewLine);
             foreach (DataRow row in dtDataTable.Rows)
             {
                 for (int i = 0; i < dtDataTable.Columns.Count; i++)
@@ -68,8 +68,10 @@ namespace JonasOchJohansMataffär
         public List<Product> products = new List<Product>();
         public Label quantity;
         public DataTable tableForCart;
-        public List<Product> cart = new List<Product>();
         public DataGrid gridForCart;
+        public Label totalLabel;
+        public int totalItems = 0;
+        public decimal totalPrice = 0;
 
         //public DataTable tableForCart;
         public Dictionary<Product, int> CartItems;
@@ -284,7 +286,6 @@ namespace JonasOchJohansMataffär
                 CanUserSortColumns = false
             };
             gridForCart.CellEditEnding += GridForCart_CellEditEnding;
-            gridForCart.CellEditEnding += CheckIfCellDelete;
             cartGrid.Children.Add(gridForCart);
             //Datatable for handling articles in customers cart
             tableForCart = new DataTable();
@@ -320,10 +321,21 @@ namespace JonasOchJohansMataffär
             cartGrid.Children.Add(checkOutGrid);
             Grid.SetRow(checkOutGrid, 1);
             checkOutGrid.RowDefinitions.Add(new RowDefinition());
+            checkOutGrid.RowDefinitions.Add(new RowDefinition());
             checkOutGrid.ColumnDefinitions.Add(new ColumnDefinition());
             checkOutGrid.ColumnDefinitions.Add(new ColumnDefinition());
             checkOutGrid.ColumnDefinitions.Add(new ColumnDefinition());
             checkOutGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            checkOutGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            //labels for total price and total amount
+            totalLabel = new Label
+            {
+                Content = $"Total items: {totalItems} pcs Total price: {totalPrice} kr",
+                Margin = new Thickness(5),
+                Padding = new Thickness(5)
+            };
+            checkOutGrid.Children.Add(totalLabel);
+            Grid.SetColumnSpan(totalLabel, 5);
             //discount label
             Label discountLabel = new Label
             {
@@ -332,6 +344,7 @@ namespace JonasOchJohansMataffär
                 Padding = new Thickness(5)
             };
             checkOutGrid.Children.Add(discountLabel);
+            Grid.SetRow(discountLabel, 1);
             //discount textbox
             discountCode = new TextBox
             {
@@ -340,15 +353,26 @@ namespace JonasOchJohansMataffär
             };
             checkOutGrid.Children.Add(discountCode);
             Grid.SetColumn(discountCode, 1);
+            Grid.SetRow(discountCode, 1);
+            Button addDiscountCode = new Button
+            {
+                Content = "Enter",
+                Margin = new Thickness(5),
+                Padding = new Thickness(5)
+            };
+            checkOutGrid.Children.Add(addDiscountCode);
+            Grid.SetColumn(addDiscountCode, 2);
+            Grid.SetRow(addDiscountCode, 1);
             // Print receipt and pay for cart
-            Button printReceipt = new Button
+            Button payButton = new Button
             {
                 Content = "Pay",
                 Margin = new Thickness(5),
                 Padding = new Thickness(5)
             };
-            checkOutGrid.Children.Add(printReceipt);
-            Grid.SetColumn(printReceipt, 2);
+            checkOutGrid.Children.Add(payButton);
+            Grid.SetColumn(payButton, 3);
+            Grid.SetRow(payButton, 1);
             //Clear all
             Button clearAllCart = new Button
             {
@@ -358,25 +382,46 @@ namespace JonasOchJohansMataffär
             };
             clearAllCart.Click += delegate { tableForCart.Rows.Clear(); };
             checkOutGrid.Children.Add(clearAllCart);
-            Grid.SetColumn(clearAllCart, 3);
+            Grid.SetColumn(clearAllCart, 4);
+            Grid.SetRow(clearAllCart, 1);
             #endregion
             Closed += MainWindow_Closed;
+            if (MessageBox.Show("Would you like to continue on your last cart?", "Cart", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                LoadCart();
+            }
+        }
+
+        private void LoadCart()
+        {
+            if (File.Exists(@"C:\Windows\Temp\cart.txt"))
+            {
+                List<string[]> lines = File.ReadLines(@"c:\Windows\Temp\cart.txt").Select(a => a.Split(';')).ToList();
+                foreach (var line in lines)
+                {
+                    DataRow newRow = tableForCart.NewRow();
+                    newRow[0] = line[0];
+                    newRow[1] = line[1];
+                    newRow[2] = line[2];
+                    newRow[3] = false;
+                    tableForCart.Rows.Add(newRow);
+                }
+                MessageBox.Show("Loaded succesfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Couldn't find latest cart", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
-            tableForCart.ToCSV(@"C:\Windows\Temp\cart.txt");
-        }
-
-        private void CheckIfCellDelete(object sender, DataGridCellEditEndingEventArgs e)
-        {
-            var checkBox = (CheckBox)e.EditingElement;
-            //If deleted is check, remove row
-            if (e.Column.Header.ToString() == "Delete" && (bool)checkBox.IsChecked)
+            if (tableForCart.Rows.Count > 1)
             {
-                tableForCart.Rows.RemoveAt(gridForCart.SelectedIndex);
+                tableForCart.ToCSV(@"C:\Windows\Temp\cart.txt");
             }
         }
+
 
         private void GridForCart_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
@@ -386,7 +431,7 @@ namespace JonasOchJohansMataffär
                 foreach (var row in tableForCart.AsEnumerable())
                 {
                     int correctAmount = int.Parse(row[2].ToString());
-                    if (int.TryParse(((TextBox)e.EditingElement).Text.ToString(), out int newAmount) && "Amount" == e.Column.Header.ToString())
+                    if (int.TryParse(((TextBox)e.EditingElement).Text.ToString(), out int newAmount) && "Amount" == e.Column.Header.ToString() && tableForCart.Rows.IndexOf(row) == gridForCart.SelectedIndex)
                     {
                         correctAmount = newAmount;
                     }
@@ -394,6 +439,15 @@ namespace JonasOchJohansMataffär
                     int indexOfProduct = productNames.IndexOf(row[0].ToString());
                     row[2] = correctAmount;
                     row[1] = correctAmount * products[indexOfProduct].ArticlePrice;
+                }
+            }
+            else if (e.Column.Header.ToString() == "Delete")
+            {
+                var checkBox = (CheckBox)e.EditingElement;
+                //If deleted is check, remove row
+                if (e.Column.Header.ToString() == "Delete" && (bool)checkBox.IsChecked)
+                {
+                    tableForCart.Rows.RemoveAt(gridForCart.SelectedIndex);
                 }
             }
         }
