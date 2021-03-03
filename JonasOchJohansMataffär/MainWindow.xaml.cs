@@ -422,11 +422,12 @@ namespace JonasOchJohansMataffär
             }
         }
 
-
         private void GridForCart_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             if ("Amount" == e.Column.Header.ToString() || "Price" == e.Column.Header.ToString())
             {
+                totalItems = 0;
+                totalPrice = 0;
                 //Kollar så priset matchar produktpriset och om isDeleted är incheckat
                 foreach (var row in tableForCart.AsEnumerable())
                 {
@@ -439,7 +440,10 @@ namespace JonasOchJohansMataffär
                     int indexOfProduct = productNames.IndexOf(row[0].ToString());
                     row[2] = correctAmount;
                     row[1] = correctAmount * products[indexOfProduct].ArticlePrice;
+                    totalItems += correctAmount;
+                    totalPrice += correctAmount * products[indexOfProduct].ArticlePrice;
                 }
+                totalLabel.Content = $"Total items: {totalItems} pcs Total price: {totalPrice} KR";
             }
             else if (e.Column.Header.ToString() == "Delete")
             {
