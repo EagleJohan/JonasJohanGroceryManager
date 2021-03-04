@@ -435,129 +435,13 @@ namespace JonasOchJohansMataffär
             #endregion
 
             // Main cart grid
-            #region
             Grid cartGrid = CART.CreateGrid();
             grid.Children.Add(cartGrid);
             Grid.SetColumn(cartGrid, 1);
             Grid.SetRow(cartGrid, 1);
             cartGrid.Margin = new Thickness(5);
-            //cartGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            //cartGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(90, GridUnitType.Star) });
-            //cartGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(10, GridUnitType.Star) });
-            //CART.dataGrid = new DataGrid
-            //{
-            //    CanUserAddRows = false,
-            //    CanUserDeleteRows = false,
-            //    CanUserReorderColumns = false,
-            //    CanUserResizeColumns = false,
-            //    CanUserResizeRows = false,
-            //    CanUserSortColumns = false
-            //};
-            ////Not added to class
             //CART.dataGrid.CellEditEnding += GridForCart_CellEditEnding;
-            //cartGrid.Children.Add(CART.dataGrid);
-            ////Datatable for handling articles in customers cart
-            //CART.table = new DataTable();
-            ////Fixed values has readonly set to true
-            //CART.table.Columns.Add(new DataColumn
-            //{
-            //    ReadOnly = true,
-            //    ColumnName = "Article Name",
-            //    DataType = typeof(string)
-            //});
-            //CART.table.Columns.Add(new DataColumn
-            //{
-            //    ReadOnly = false,
-            //    ColumnName = "Price",
-            //    DataType = typeof(decimal)
-            //});
-            //// amount and delete is dynamic
-            //CART.Quantity = new DataColumn
-            //{
-            //    ColumnName = "Amount",
-            //    DataType = typeof(int)
-            //};
-            //CART.table.Columns.Add(CART.Quantity);
-            //CART.Deleted = new DataColumn
-            //{
-            //    ColumnName = "Delete",
-            //    DataType = typeof(bool)
-            //};
-            //CART.table.Columns.Add(CART.Deleted);
-            //CART.dataGrid.ItemsSource = CART.table.DefaultView;
-            ////Grid for discount codes, clear shopping cart and print receipt
-            //Grid checkOutGrid = new Grid();
-            //cartGrid.Children.Add(checkOutGrid);
-
-
-            //Grid.SetRow(checkOutGrid, 1);
-            //checkOutGrid.RowDefinitions.Add(new RowDefinition());
-            //checkOutGrid.RowDefinitions.Add(new RowDefinition());
-            //checkOutGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            //checkOutGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            //checkOutGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            //checkOutGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            //checkOutGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            ////labels for total price and total amount
-            //CART.totalLabel = new Label
-            //{
-            //    Content = "Totals",
-            //    Margin = new Thickness(5),
-            //    Padding = new Thickness(5)
-            //};
-            //checkOutGrid.Children.Add(CART.totalLabel);
-            //Grid.SetColumnSpan(CART.totalLabel, 5);
-            ////discount label
-            //Label discountLabel = new Label
-            //{
-            //    Content = "Coupon:",
-            //    Margin = new Thickness(5),
-            //    Padding = new Thickness(5)
-            //};
-            //checkOutGrid.Children.Add(discountLabel);
-            //Grid.SetRow(discountLabel, 1);
-            ////discount textbox
-            //CART.discountCode = new TextBox
-            //{
-            //    Margin = new Thickness(5),
-            //    Padding = new Thickness(5)
-            //};
-            //checkOutGrid.Children.Add(CART.discountCode);
-            //Grid.SetColumn(CART.discountCode, 1);
-            //Grid.SetRow(CART.discountCode, 1);
-            //Button addDiscountCode = new Button
-            //{
-            //    Content = "Enter",
-            //    Margin = new Thickness(5),
-            //    Padding = new Thickness(5)
-            //};
-            //checkOutGrid.Children.Add(addDiscountCode);
-            //addDiscountCode.Click += AddDiscountCode;
-            //Grid.SetColumn(addDiscountCode, 2);
-            //Grid.SetRow(addDiscountCode, 1);
-            //// Print receipt and pay for cart
-            //Button payButton = new Button
-            //{
-            //    Content = "Pay",
-            //    Margin = new Thickness(5),
-            //    Padding = new Thickness(5)
-            //};
-            //payButton.Click += PayButton_Click;
-            //checkOutGrid.Children.Add(payButton);
-            //Grid.SetColumn(payButton, 3);
-            //Grid.SetRow(payButton, 1);
-            ////Clear all
-            //Button clearAllCart = new Button
-            //{
-            //    Content = "Delete All",
-            //    Margin = new Thickness(5),
-            //    Padding = new Thickness(5)
-            //};
-            //clearAllCart.Click += delegate { CART.table.Rows.Clear(); };
-            //checkOutGrid.Children.Add(clearAllCart);
-            //Grid.SetColumn(clearAllCart, 4);
-            //Grid.SetRow(clearAllCart, 1);
-            #endregion
+           
             CART.discountCoupons.Add("code10", 0.1M);
             CART.discountCoupons.Add("code15", 0.15M);
             CART.discountCoupons.Add("code20", 0.2M);
