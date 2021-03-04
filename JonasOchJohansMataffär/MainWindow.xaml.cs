@@ -110,7 +110,6 @@ namespace JonasOchJohansMataffär
             grid.ItemsSource = this.table.DefaultView;
             return grid;
         }
-
         public Grid CreateCheckOut()
         {
             Grid grid = new Grid();
@@ -185,7 +184,44 @@ namespace JonasOchJohansMataffär
             Grid.SetRow(clearAllCart, 1);
             return grid;
         }
-
+        public void UpdateTotals()
+        {
+            totalItems = 0;
+            totalPrice = 0;
+            decimal totalDiscount = 0.0M;
+            foreach (DataRow row in table.AsEnumerable())
+            {
+                totalItems += int.Parse(row[2].ToString());
+                totalPrice += decimal.Parse(row[1].ToString());
+            }
+            foreach (string coupon in usedDiscountCoupons)
+            {
+                totalDiscount += discountCoupons[coupon];
+            }
+            totalLabel.Content = $"Total quantity: {totalItems} pcs Total price: {totalPrice:N2}kr\n" +
+                                 $"Total price after discount coupons: {totalPrice * (1 - totalDiscount):N2}kr";
+        }
+        public void Load()
+        {
+            if (File.Exists(@"C:\Windows\Temp\cart.txt"))
+            {
+                List<string[]> lines = File.ReadLines(@"c:\Windows\Temp\cart.txt").Select(a => a.Split(';')).ToList();
+                foreach (var line in lines)
+                {
+                    DataRow newRow = table.NewRow();
+                    newRow[0] = line[0];
+                    newRow[1] = line[1];
+                    newRow[2] = line[2];
+                    newRow[3] = false;
+                    table.Rows.Add(newRow);
+                }
+                MessageBox.Show("Loaded succesfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Couldn't find latest cart", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
     public class CSVHandler
     {
@@ -237,8 +273,8 @@ namespace JonasOchJohansMataffär
         public List<string[]> file = File.ReadLines(@"Documents\utbud.csv").Select(a => a.Split(';')).ToList();
         public List<Product> products = new List<Product>();
 
-        Store STORE = new Store();
-        Cart CART = new Cart();
+        public Store STORE = new Store();
+        public Cart CART = new Cart();
 
         public MainWindow()
         {
@@ -247,9 +283,8 @@ namespace JonasOchJohansMataffär
             Closed += MainWindow_Closed;
             if (MessageBox.Show("Would you like to continue on your last cart?", "Cart", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                LoadCart();
+                CART.Load();
             }
-            UpdateTotals();
         }
 
         private void Start()
@@ -464,48 +499,11 @@ namespace JonasOchJohansMataffär
                 MessageBox.Show("Coupon is already in use", "Coupon", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             CART.discountCode.Text = "";
-            UpdateTotals();
+            CART.UpdateTotals();
         }
 
-        private void UpdateTotals()
-        {
-            CART.totalItems = 0;
-            CART.totalPrice = 0;
-            decimal totalDiscount = 0.0M;
-            foreach (DataRow row in CART.table.AsEnumerable())
-            {
-                CART.totalItems += int.Parse(row[2].ToString());
-                CART.totalPrice += decimal.Parse(row[1].ToString());
-            }
-            foreach (string coupon in CART.usedDiscountCoupons)
-            {
-                totalDiscount += CART.discountCoupons[coupon];
-            }
-            CART.totalLabel.Content = $"Total quantity: {CART.totalItems} pcs Total price: {CART.totalPrice:N2}kr\n" +
-                                 $"Total price after discount coupons: {CART.totalPrice * (1 - totalDiscount):N2}kr";
-        }
 
-        private void LoadCart()
-        {
-            if (File.Exists(@"C:\Windows\Temp\cart.txt"))
-            {
-                List<string[]> lines = File.ReadLines(@"c:\Windows\Temp\cart.txt").Select(a => a.Split(';')).ToList();
-                foreach (var line in lines)
-                {
-                    DataRow newRow = CART.table.NewRow();
-                    newRow[0] = line[0];
-                    newRow[1] = line[1];
-                    newRow[2] = line[2];
-                    newRow[3] = false;
-                    CART.table.Rows.Add(newRow);
-                }
-                MessageBox.Show("Loaded succesfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            else
-            {
-                MessageBox.Show("Couldn't find latest cart", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+        
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
@@ -544,7 +542,7 @@ namespace JonasOchJohansMataffär
                     CART.table.Rows.RemoveAt(CART.dataGrid.SelectedIndex);
                 }
             }
-            UpdateTotals();
+            CART.UpdateTotals();
         }
 
         private void AddToCartButton_Click(object sender, RoutedEventArgs e)
@@ -570,7 +568,7 @@ namespace JonasOchJohansMataffär
                     result[1] = newAmount * products[STORE.articleList.SelectedIndex].ArticlePrice;
                 }
             }
-            UpdateTotals();
+            CART.UpdateTotals();
             STORE.storeAmount.Text = "1";
         }
 
