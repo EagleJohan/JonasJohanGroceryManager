@@ -11,15 +11,12 @@ using System.Windows.Media.Imaging;
 
 namespace JonasOchJohansMataffär
 {
-    public interface IWindow
-    {
-        public Grid CreateGrid();
-    }
     //Class for handling methods and variables related to the Store
-    public class Store : IWindow
+    public class Store
     {
         //Variables
         public Image articleImage;
+
         public ComboBox articleList;
         public TextBlock titleHeader;
         public Label articleDescription;
@@ -28,16 +25,204 @@ namespace JonasOchJohansMataffär
         public Button addToCartButton;
 
         //Methods
-        public Grid CreateGrid()
+        public WrapPanel CreatePanel()
         {
-            Grid grid = new Grid();
-            return grid;
+            WrapPanel wrapPanel = new WrapPanel
+            {
+                Orientation = Orientation.Horizontal
+            };
+            articleImage = new Image
+            {
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(5),
+                Stretch = Stretch.UniformToFill,
+                Width = 250,
+                Height = 250
+                //Source = ReadImage(@"Pictures\Placeholder.jpg")
+            };
+            wrapPanel.Children.Add(articleImage);
+
+            //Grid for both choosing articles and description
+            Grid showArticleGrid = new Grid();
+            showArticleGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(5, GridUnitType.Star) });
+            showArticleGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(75, GridUnitType.Star) });
+            showArticleGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(20, GridUnitType.Star) });
+            showArticleGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(20, GridUnitType.Star) });
+            showArticleGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            wrapPanel.Children.Add(showArticleGrid);
+
+            //Combobox to choose article
+            articleList = new ComboBox
+            {
+                Name = "Articles",
+                Margin = new Thickness(5),
+                Padding = new Thickness(5),
+                ItemsSource = Product.products.Select(products => products.ArticleName)
+            };
+            articleList.DropDownOpened += ArticleList_DropDownOpened;
+            articleList.SelectionChanged += ArticleList_SelectionChanged;
+            showArticleGrid.Children.Add(articleList);
+
+            //Header over article list
+            titleHeader = new TextBlock
+            {
+                Text = "Article",
+                IsHitTestVisible = false,
+                Margin = new Thickness(5),
+                Padding = new Thickness(5)
+            };
+            showArticleGrid.Children.Add(titleHeader);
+
+            //Label to describe the chosen article
+            articleDescription = new Label
+            {
+                Content = "Description of articles",
+                Margin = new Thickness(5),
+                Padding = new Thickness(5)
+            };
+            showArticleGrid.Children.Add(articleDescription);
+            Grid.SetRow(articleDescription, 1);
+
+            priceLabel = new Label
+            {
+                Margin = new Thickness(5),
+                Padding = new Thickness(5),
+                Content = "Price:"
+            };
+            showArticleGrid.Children.Add(priceLabel);
+            Grid.SetRow(priceLabel, 2);
+
+            //Grid for adding articles to cart
+            Grid addProductGrid = new Grid();
+            showArticleGrid.Children.Add(addProductGrid);
+            Grid.SetRow(addProductGrid, 4);
+            addProductGrid.RowDefinitions.Add(new RowDefinition { });
+            addProductGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) });
+            addProductGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(60, GridUnitType.Star) });
+            addProductGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) });
+            addProductGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) });
+
+            //Amount to add to cart, default is one
+            storeAmount = new TextBox
+            {
+                Margin = new Thickness(5),
+                Padding = new Thickness(5),
+                Text = "1",
+                VerticalContentAlignment = VerticalAlignment.Center,
+            };
+            storeAmount.TextChanged += CheckForMinimumAmount;
+            storeAmount.GotFocus += SelectionStartAmount;
+            addProductGrid.Children.Add(storeAmount);
+            storeAmount.KeyDown += Integers_KeyDown;
+            Grid.SetColumn(storeAmount, 1);
+            //Button to decrease amount
+            Button decreaseAmount = new Button
+            {
+                Margin = new Thickness(5),
+                Padding = new Thickness(5),
+                Content = "-"
+            };
+            decreaseAmount.Click += DecreaseAmount_Click;
+            addProductGrid.Children.Add(decreaseAmount);
+            //button to increase amount
+            Button increaseAmount = new Button
+            {
+                Margin = new Thickness(5),
+                Padding = new Thickness(5),
+                Content = "+"
+            };
+            increaseAmount.Click += IncreaseAmount_Click;
+            addProductGrid.Children.Add(increaseAmount);
+            Grid.SetColumn(increaseAmount, 2);
+            //button to add to cart
+            addToCartButton = new Button
+            {
+                Margin = new Thickness(5),
+                Padding = new Thickness(5),
+                Content = "Add to cart",
+                IsEnabled = false
+            };
+            addProductGrid.Children.Add(addToCartButton);
+            Grid.SetColumn(addToCartButton, 3);
+
+            return wrapPanel;
+        }
+
+        //Event handler
+
+        private void ArticleList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //articleImage.Source = ReadImage(Path.Combine(@"Pictures\", articleList.SelectedItem.ToString() + ".jpg"));
+            priceLabel.Content = "Price: " + Product.products[articleList.SelectedIndex].ArticlePrice + " SEK";
+            articleDescription.Content = "";
+            addToCartButton.IsEnabled = true;
+        }
+
+        private void ArticleList_DropDownOpened(object sender, EventArgs e)
+        {
+            titleHeader.Text = "";
+        }
+
+        //event handlers
+
+        private void SelectionStartAmount(object sender, RoutedEventArgs e)
+        {
+            storeAmount.SelectionStart = storeAmount.Text.Length;
+            storeAmount.SelectionLength = 0;
+        }
+
+        private void CheckForMinimumAmount(object sender, TextChangedEventArgs e)
+        {
+            int.TryParse(storeAmount.Text, out int currentAmount);
+            if (storeAmount.Text.Length > 0 && currentAmount < 1)
+            {
+                storeAmount.Text = "1";
+            }
+        }
+
+        private void IncreaseAmount_Click(object sender, RoutedEventArgs e)
+        {
+            int.TryParse(storeAmount.Text, out int currentAmount);
+            currentAmount++;
+            storeAmount.Text = currentAmount.ToString();
+        }
+
+        private void DecreaseAmount_Click(object sender, RoutedEventArgs e)
+        {
+            int.TryParse(storeAmount.Text, out int currentAmount);
+            if (currentAmount < 1)
+            {
+                storeAmount.Text = "1";
+            }
+            else
+            {
+                currentAmount--;
+                storeAmount.Text = currentAmount.ToString();
+            }
+        }
+
+        private void Integers_KeyDown(object sender, KeyEventArgs e)
+        {
+            var digitkeys = e.Key >= Key.D0 && e.Key <= Key.D9;
+            var numbpadKeys = e.Key >= Key.NumPad0 && e.Key <= Key.NumPad9;
+            var modifiedKey = e.KeyboardDevice.Modifiers == ModifierKeys.None;
+            if (modifiedKey && (digitkeys || numbpadKeys))
+            {
+                e.Handled = false;
+            }
+            else
+            {
+                e.Handled = true;
+            }
         }
     }
-    public class Cart : IWindow 
+
+    public class Cart
     {
         //Varibles
         public DataColumn Quantity;
+
         public DataColumn Deleted;
         public TextBox discountCode;
         public DataTable table;
@@ -57,7 +242,7 @@ namespace JonasOchJohansMataffär
             grid.ColumnDefinitions.Add(new ColumnDefinition());
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(90, GridUnitType.Star) });
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(10, GridUnitType.Star) });
-        
+
             dataGrid = CreateDataGrid();
             grid.Children.Add(dataGrid);
 
@@ -65,10 +250,10 @@ namespace JonasOchJohansMataffär
             grid.Children.Add(checkOut);
             Grid.SetRow(checkOut, 1);
 
-
             //Return a completed grid
             return grid;
         }
+
         public DataGrid CreateDataGrid()
         {
             //Creates DataGrid to display cart
@@ -110,6 +295,7 @@ namespace JonasOchJohansMataffär
             grid.ItemsSource = this.table.DefaultView;
             return grid;
         }
+
         public Grid CreateCheckOut()
         {
             Grid grid = new Grid();
@@ -157,7 +343,7 @@ namespace JonasOchJohansMataffär
                 Padding = new Thickness(5)
             };
             grid.Children.Add(addDiscountCode);
-            //addDiscountCode.Click += AddDiscountCode;
+            addDiscountCode.Click += AddDiscountCode;
             Grid.SetColumn(addDiscountCode, 2);
             Grid.SetRow(addDiscountCode, 1);
             // Print receipt and pay for cart
@@ -184,6 +370,7 @@ namespace JonasOchJohansMataffär
             Grid.SetRow(clearAllCart, 1);
             return grid;
         }
+
         public void UpdateTotals()
         {
             totalItems = 0;
@@ -201,6 +388,7 @@ namespace JonasOchJohansMataffär
             totalLabel.Content = $"Total quantity: {totalItems} pcs Total price: {totalPrice:N2}kr\n" +
                                  $"Total price after discount coupons: {totalPrice * (1 - totalDiscount):N2}kr";
         }
+
         public void Load()
         {
             if (File.Exists(@"C:\Windows\Temp\cart.txt"))
@@ -222,13 +410,71 @@ namespace JonasOchJohansMataffär
                 MessageBox.Show("Couldn't find latest cart", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        //Event handlers
+        public void AddDiscountCode(object sender, RoutedEventArgs e)
+        {
+            string inputdiscount = discountCode.Text.ToLower();
+            if (discountCoupons.ContainsKey(inputdiscount) && !usedDiscountCoupons.Contains(inputdiscount))
+            {
+                usedDiscountCoupons.Add(inputdiscount);
+            }
+            else if (discountCoupons.ContainsKey(inputdiscount) && usedDiscountCoupons.Contains(inputdiscount))
+            {
+                MessageBox.Show("Coupon is already in use", "Coupon", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            discountCode.Text = "";
+            UpdateTotals();
+        }
+
+        private void GridForCart_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            if ("Amount" == e.Column.Header.ToString() || "Price" == e.Column.Header.ToString())
+            {
+                totalItems = 0;
+                totalPrice = 0;
+                //Kollar så priset matchar produktpriset och om isDeleted är incheckat
+                foreach (var row in table.AsEnumerable())
+                {
+                    int correctAmount = int.Parse(row[2].ToString());
+                    if (int.TryParse(((TextBox)e.EditingElement).Text.ToString(), out int newAmount)
+                        && "Amount" == e.Column.Header.ToString()
+                        && table.Rows.IndexOf(row) == dataGrid.SelectedIndex)
+                    {
+                        correctAmount = newAmount;
+                    }
+                    var productNames = Product.products.Select(products => products.ArticleName).ToList();
+                    int indexOfProduct = productNames.IndexOf(row[0].ToString());
+                    row[2] = correctAmount;
+                    row[1] = correctAmount * Product.products[indexOfProduct].ArticlePrice;
+                }
+            }
+            else if (e.Column.Header.ToString() == "Delete")
+            {
+                var checkBox = (CheckBox)e.EditingElement;
+                //If deleted is check, remove row
+                if (e.Column.Header.ToString() == "Delete" && (bool)checkBox.IsChecked)
+                {
+                    table.Rows.RemoveAt(dataGrid.SelectedIndex);
+                }
+            }
+            UpdateTotals();
+        }
     }
+
+    public class Receipt
+    {
+        //SÖNDAG
+    }
+
     public class CSVHandler
     {
-
+        //SÖNDAG
     }
+
     public static class CSVutility
     {
+        //FLYTTA
         public static void ToCSV(this DataTable dtDataTable, string strFilePath)
         {
             StreamWriter sw = new StreamWriter(strFilePath, false);
@@ -266,14 +512,19 @@ namespace JonasOchJohansMataffär
         public string ArticleName { get; set; }
         public decimal ArticlePrice { get; set; }
         public string ArticleDescription { get; set; }
+
+        //LÖS
+        public static List<Product> products = new List<Product>();
     }
 
     public partial class MainWindow : Window
     {
+        //FLYTTA?
         public List<string[]> file = File.ReadLines(@"Documents\utbud.csv").Select(a => a.Split(';')).ToList();
-        public List<Product> products = new List<Product>();
 
+        //Flytta ner
         public Store STORE = new Store();
+
         public Cart CART = new Cart();
 
         public MainWindow()
@@ -281,6 +532,7 @@ namespace JonasOchJohansMataffär
             InitializeComponent();
             Start();
             Closed += MainWindow_Closed;
+            //Flytta
             if (MessageBox.Show("Would you like to continue on your last cart?", "Cart", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 CART.Load();
@@ -297,7 +549,7 @@ namespace JonasOchJohansMataffär
                     ArticleName = line[1],
                     ArticlePrice = decimal.Parse(line[2])
                 };
-                products.Add(product);
+                Product.products.Add(product);
             }
             // Window options
             Title = "Generic Store AB";
@@ -343,131 +595,11 @@ namespace JonasOchJohansMataffär
             grid.Children.Add(cartTitle);
             Grid.SetColumn(cartTitle, 1);
             // Store grid
-            #region
-            WrapPanel store = new WrapPanel
-            {
-                Orientation = Orientation.Horizontal
-            };
+            WrapPanel store = STORE.CreatePanel();
             grid.Children.Add(store);
             store.Margin = new Thickness(5);
-            store.Children.Add(CreateImage("bild"));
             Grid.SetRow(store, 1);
-
-            //A panel for article images
-            STORE.articleImage = new Image
-            {
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(5),
-                Stretch = Stretch.UniformToFill,
-                Width = 250,
-                Height = 250,
-                Source = ReadImage(@"Pictures\Placeholder.jpg")
-            };
-            store.Children.Add(STORE.articleImage);
-            //Grid for both choosing articles and description
-            Grid articles = new Grid();
-            articles.RowDefinitions.Add(new RowDefinition { Height = new GridLength(5, GridUnitType.Star) });
-            articles.RowDefinitions.Add(new RowDefinition { Height = new GridLength(75, GridUnitType.Star) });
-            articles.RowDefinitions.Add(new RowDefinition { Height = new GridLength(20, GridUnitType.Star) });
-            articles.ColumnDefinitions.Add(new ColumnDefinition());
-            store.Children.Add(articles);
-            //Combobox to choose article
-            STORE.articleList = new ComboBox
-            {
-                Name = "Articles",
-                Margin = new Thickness(5),
-                Padding = new Thickness(5),
-                ItemsSource = products.Select(products => products.ArticleName)
-            };
-            STORE.articleList.DropDownOpened += ArticleList_DropDownOpened;
-            STORE.articleList.SelectionChanged += ArticleList_SelectionChanged;
-            articles.Children.Add(STORE.articleList);
-            //Header over article list
-            STORE.titleHeader = new TextBlock
-            {
-                Text = "Article",
-                IsHitTestVisible = false,
-                Margin = new Thickness(5),
-                Padding = new Thickness(5)
-            };
-            articles.Children.Add(STORE.titleHeader);
-            //Label to describe the chosen article
-            STORE.articleDescription = new Label
-            {
-                Content = "Description of articles",
-                Margin = new Thickness(5),
-                Padding = new Thickness(5)
-            };
-            articles.Children.Add(STORE.articleDescription);
-            Grid.SetRow(STORE.articleDescription, 1);
-            //Grid for adding articles to cart
-            Grid addToCartGrid = new Grid();
-            articles.Children.Add(addToCartGrid);
-            Grid.SetRow(addToCartGrid, 2);
-            addToCartGrid.RowDefinitions.Add(new RowDefinition { });
-            addToCartGrid.RowDefinitions.Add(new RowDefinition { });
-            addToCartGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) });
-            addToCartGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(60, GridUnitType.Star) });
-            addToCartGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) });
-            addToCartGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) });
-            //Price of current article
-            STORE.priceLabel = new Label
-            {
-                Margin = new Thickness(5),
-                Padding = new Thickness(5),
-                Content = "Price:"
-            };
-            addToCartGrid.Children.Add(STORE.priceLabel);
-            Grid.SetColumnSpan(STORE.priceLabel, 4);
-            //Amount to add to cart, default is one
-            STORE.storeAmount = new TextBox
-            {
-                Margin = new Thickness(5),
-                Padding = new Thickness(5),
-                Text = "1",
-                VerticalContentAlignment = VerticalAlignment.Center,
-            };
-            STORE.storeAmount.TextChanged += CheckForMinimumAmount;
-            STORE.storeAmount.GotFocus += SelectionStartAmount;
-            addToCartGrid.Children.Add(STORE.storeAmount);
-            STORE.storeAmount.KeyDown += Integers_KeyDown;
-            Grid.SetColumn(STORE.storeAmount, 1);
-            Grid.SetRow(STORE.storeAmount, 1);
-            //Button to decrease amount
-            Button decreaseAmount = new Button
-            {
-                Margin = new Thickness(5),
-                Padding = new Thickness(5),
-                Content = "-"
-            };
-            decreaseAmount.Click += DecreaseAmount_Click;
-            addToCartGrid.Children.Add(decreaseAmount);
-            Grid.SetRow(decreaseAmount, 1);
-            //button to increase amount
-            Button increaseAmount = new Button
-            {
-                Margin = new Thickness(5),
-                Padding = new Thickness(5),
-                Content = "+"
-            };
-            increaseAmount.Click += IncreaseAmount_Click;
-            addToCartGrid.Children.Add(increaseAmount);
-            Grid.SetColumn(increaseAmount, 2);
-            Grid.SetRow(increaseAmount, 1);
-            //button to add to cart
-            STORE.addToCartButton = new Button
-            {
-                Margin = new Thickness(5),
-                Padding = new Thickness(5),
-                Content = "Add to cart",
-                IsEnabled = false
-            };
             STORE.addToCartButton.Click += AddToCartButton_Click;
-            addToCartGrid.Children.Add(STORE.addToCartButton);
-            Grid.SetColumn(STORE.addToCartButton, 3);
-            Grid.SetRow(STORE.addToCartButton, 1);
-            #endregion
 
             // Main cart grid
             Grid cartGrid = CART.CreateGrid();
@@ -476,34 +608,12 @@ namespace JonasOchJohansMataffär
             Grid.SetRow(cartGrid, 1);
             cartGrid.Margin = new Thickness(5);
             //CART.dataGrid.CellEditEnding += GridForCart_CellEditEnding;
-           
+
+            //Ta bort och ersätt med metod
             CART.discountCoupons.Add("code10", 0.1M);
             CART.discountCoupons.Add("code15", 0.15M);
             CART.discountCoupons.Add("code20", 0.2M);
         }
-
-        private void PayButton_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Hejdå");
-        }
-
-        private void AddDiscountCode(object sender, RoutedEventArgs e)
-        {
-            string inputdiscount = CART.discountCode.Text.ToLower();
-            if (CART.discountCoupons.ContainsKey(inputdiscount) && !CART.usedDiscountCoupons.Contains(inputdiscount))
-            {
-                CART.usedDiscountCoupons.Add(inputdiscount);
-            }
-            else if (CART.discountCoupons.ContainsKey(inputdiscount) && CART.usedDiscountCoupons.Contains(inputdiscount))
-            {
-                MessageBox.Show("Coupon is already in use", "Coupon", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            CART.discountCode.Text = "";
-            CART.UpdateTotals();
-        }
-
-
-        
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
@@ -513,48 +623,17 @@ namespace JonasOchJohansMataffär
             }
         }
 
-        private void GridForCart_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
-        {
-            if ("Amount" == e.Column.Header.ToString() || "Price" == e.Column.Header.ToString())
-            {
-                CART.totalItems = 0;
-                CART.totalPrice = 0;
-                //Kollar så priset matchar produktpriset och om isDeleted är incheckat
-                foreach (var row in CART.table.AsEnumerable())
-                {
-                    int correctAmount = int.Parse(row[2].ToString());
-                    if (int.TryParse(((TextBox)e.EditingElement).Text.ToString(), out int newAmount) && "Amount" == e.Column.Header.ToString() && CART.table.Rows.IndexOf(row) == CART.dataGrid.SelectedIndex)
-                    {
-                        correctAmount = newAmount;
-                    }
-                    var productNames = products.Select(products => products.ArticleName).ToList();
-                    int indexOfProduct = productNames.IndexOf(row[0].ToString());
-                    row[2] = correctAmount;
-                    row[1] = correctAmount * products[indexOfProduct].ArticlePrice;
-                }
-            }
-            else if (e.Column.Header.ToString() == "Delete")
-            {
-                var checkBox = (CheckBox)e.EditingElement;
-                //If deleted is check, remove row
-                if (e.Column.Header.ToString() == "Delete" && (bool)checkBox.IsChecked)
-                {
-                    CART.table.Rows.RemoveAt(CART.dataGrid.SelectedIndex);
-                }
-            }
-            CART.UpdateTotals();
-        }
-
-        private void AddToCartButton_Click(object sender, RoutedEventArgs e)
+        //Fundera på flytta?
+        public void AddToCartButton_Click(object sender, RoutedEventArgs e)
         {
             for (int i = 0; i < int.Parse(STORE.storeAmount.Text); i++)
             {
-                bool exists = CART.table.AsEnumerable().Any(row => row.Field<string>("Article Name") == products[STORE.articleList.SelectedIndex].ArticleName);
+                bool exists = CART.table.AsEnumerable().Any(row => row.Field<string>("Article Name") == Product.products[STORE.articleList.SelectedIndex].ArticleName);
                 if (!exists)
                 {
                     DataRow newRow = CART.table.NewRow();
-                    newRow[0] = products[STORE.articleList.SelectedIndex].ArticleName;
-                    newRow[1] = products[STORE.articleList.SelectedIndex].ArticlePrice;
+                    newRow[0] = Product.products[STORE.articleList.SelectedIndex].ArticleName;
+                    newRow[1] = Product.products[STORE.articleList.SelectedIndex].ArticlePrice;
                     newRow[2] = 1;
                     newRow[3] = false;
                     CART.table.Rows.Add(newRow);
@@ -562,93 +641,17 @@ namespace JonasOchJohansMataffär
                 else
                 {
                     //Söker och tar fram raden som matchar artikelnamnet, använder first eftersom vi utgår från att det enbart finns en av de namnet och vi vill enbart ha en rad att arbeta med.
-                    DataRow result = CART.table.Select().Where(row => row.Field<string>("Article Name") == products[STORE.articleList.SelectedIndex].ArticleName).First();
+                    DataRow result = CART.table.Select().Where(row => row.Field<string>("Article Name") == Product.products[STORE.articleList.SelectedIndex].ArticleName).First();
                     int newAmount = int.Parse(result[2].ToString()) + 1;
                     result[2] = newAmount;
-                    result[1] = newAmount * products[STORE.articleList.SelectedIndex].ArticlePrice;
+                    result[1] = newAmount * Product.products[STORE.articleList.SelectedIndex].ArticlePrice;
                 }
             }
             CART.UpdateTotals();
             STORE.storeAmount.Text = "1";
         }
 
-        private void ArticleList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            STORE.articleImage.Source = ReadImage(Path.Combine(@"Pictures\", STORE.articleList.SelectedItem.ToString() + ".jpg"));
-            STORE.priceLabel.Content = "Price: " + products[STORE.articleList.SelectedIndex].ArticlePrice + " SEK";
-            STORE.articleDescription.Content = "";
-            STORE.addToCartButton.IsEnabled = true;
-        }
-
-        private void ArticleList_DropDownOpened(object sender, EventArgs e)
-        {
-            STORE.titleHeader.Text = "";
-        }
-
-        //event handlers
-        #region
-
-        private void SelectionStartAmount(object sender, RoutedEventArgs e)
-        {
-            STORE.storeAmount.SelectionStart = STORE.storeAmount.Text.Length;
-            STORE.storeAmount.SelectionLength = 0;
-        }
-
-        private void CheckForMinimumAmount(object sender, TextChangedEventArgs e)
-        {
-            int.TryParse(STORE.storeAmount.Text, out int currentAmount);
-            if (STORE.storeAmount.Text.Length > 0 && currentAmount < 1)
-            {
-                STORE.storeAmount.Text = "1";
-            }
-        }
-
-        private void IncreaseAmount_Click(object sender, RoutedEventArgs e)
-        {
-            int.TryParse(STORE.storeAmount.Text, out int currentAmount);
-            currentAmount++;
-            STORE.storeAmount.Text = currentAmount.ToString();
-        }
-
-        private void DecreaseAmount_Click(object sender, RoutedEventArgs e)
-        {
-            int.TryParse(STORE.storeAmount.Text, out int currentAmount);
-            if (currentAmount < 1)
-            {
-                STORE.storeAmount.Text = "1";
-            }
-            else
-            {
-                currentAmount--;
-                STORE.storeAmount.Text = currentAmount.ToString();
-            }
-        }
-
-        /// <summary>
-        /// Check if key pressed is a digit from numpad or digitkeys
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Integers_KeyDown(object sender, KeyEventArgs e)
-        {
-            var digitkeys = e.Key >= Key.D0 && e.Key <= Key.D9;
-            var numbpadKeys = e.Key >= Key.NumPad0 && e.Key <= Key.NumPad9;
-            var modifiedKey = e.KeyboardDevice.Modifiers == ModifierKeys.None;
-            if (modifiedKey && (digitkeys || numbpadKeys))
-            {
-                e.Handled = false;
-            }
-            else
-            {
-                e.Handled = true;
-            }
-        }
-
-        /// <summary>
-        /// Creates image from source in project filepath/filename
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
+        //FLYTTA OCH FIXA
         private Image CreateImage(string filePath)
         {
             ImageSource source = new BitmapImage(new Uri(filePath, UriKind.Relative));
@@ -665,12 +668,11 @@ namespace JonasOchJohansMataffär
             return image;
         }
 
+        //FLYTTA OCH FIXA
         private ImageSource ReadImage(string fileName)
         {
             ImageSource source = new BitmapImage(new Uri(fileName, UriKind.Relative));
             return source;
         }
-
-        #endregion
     }
 }
