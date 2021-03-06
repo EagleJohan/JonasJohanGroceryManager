@@ -24,6 +24,9 @@ namespace JonasOchJohansMataffär
         public Label priceLabel;
         public Button addToCartButton;
 
+        public List<Product> products = new List<Product>();
+
+
         //Methods
         public WrapPanel CreatePanel()
         {
@@ -58,7 +61,7 @@ namespace JonasOchJohansMataffär
                 Name = "Articles",
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
-                ItemsSource = Product.products.Select(products => products.ArticleName)
+                ItemsSource = products.Select(products => products.ArticleName)
             };
             articleList.DropDownOpened += ArticleList_DropDownOpened;
             articleList.SelectionChanged += ArticleList_SelectionChanged;
@@ -154,7 +157,7 @@ namespace JonasOchJohansMataffär
         private void ArticleList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             articleImage.Source = Utility.ReadImage(Path.Combine(@"Pictures\", articleList.SelectedItem.ToString() + ".jpg"));
-            priceLabel.Content = "Price: " + Product.products[articleList.SelectedIndex].ArticlePrice + " SEK";
+            priceLabel.Content = "Price: " + products[articleList.SelectedIndex].ArticlePrice + " SEK";
             articleDescription.Content = "";
             addToCartButton.IsEnabled = true;
         }
@@ -232,6 +235,8 @@ namespace JonasOchJohansMataffär
         public decimal totalPrice = 0;
         public Dictionary<string, decimal> discountCoupons = new Dictionary<string, decimal>();
         public List<string> usedDiscountCoupons = new List<string>();
+
+        public List<Product> products = new List<Product>();
 
         //Methods
         public Grid CreateGrid()
@@ -443,10 +448,10 @@ namespace JonasOchJohansMataffär
                     {
                         correctAmount = newAmount;
                     }
-                    var productNames = Product.products.Select(products => products.ArticleName).ToList();
+                    var productNames = products.Select(products => products.ArticleName).ToList();
                     int indexOfProduct = productNames.IndexOf(row[0].ToString());
                     row[2] = correctAmount;
-                    row[1] = correctAmount * Product.products[indexOfProduct].ArticlePrice;
+                    row[1] = correctAmount * products[indexOfProduct].ArticlePrice;
                 }
             }
             else if (e.Column.Header.ToString() == "Delete")
@@ -503,15 +508,13 @@ namespace JonasOchJohansMataffär
         public string ArticleName { get; set; }
         public decimal ArticlePrice { get; set; }
         public string ArticleDescription { get; set; }
-
-        //LÖS
-        public static List<Product> products = new List<Product>();
     }
 
     public partial class MainWindow : Window
     {
         //FLYTTA?
         public List<string[]> file = File.ReadLines(@"Documents\utbud.csv").Select(a => a.Split(';')).ToList();
+        public List<Product> products = new List<Product>();
 
         //Flytta ner
         public Store myStore = new Store();
@@ -541,7 +544,9 @@ namespace JonasOchJohansMataffär
                     ArticleName = line[1],
                     ArticlePrice = decimal.Parse(line[2])
                 };
-                Product.products.Add(product);
+                products.Add(product);
+                myStore.products.Add(product);
+                myCart.products.Add(product);
             }
             // Window options
             Title = "Generic Store AB";
@@ -620,12 +625,12 @@ namespace JonasOchJohansMataffär
         {
             for (int i = 0; i < int.Parse(myStore.storeAmount.Text); i++)
             {
-                bool exists = myCart.table.AsEnumerable().Any(row => row.Field<string>("Article Name") == Product.products[myStore.articleList.SelectedIndex].ArticleName);
+                bool exists = myCart.table.AsEnumerable().Any(row => row.Field<string>("Article Name") == products[myStore.articleList.SelectedIndex].ArticleName);
                 if (!exists)
                 {
                     DataRow newRow = myCart.table.NewRow();
-                    newRow[0] = Product.products[myStore.articleList.SelectedIndex].ArticleName;
-                    newRow[1] = Product.products[myStore.articleList.SelectedIndex].ArticlePrice;
+                    newRow[0] = products[myStore.articleList.SelectedIndex].ArticleName;
+                    newRow[1] = products[myStore.articleList.SelectedIndex].ArticlePrice;
                     newRow[2] = 1;
                     newRow[3] = false;
                     myCart.table.Rows.Add(newRow);
@@ -633,10 +638,10 @@ namespace JonasOchJohansMataffär
                 else
                 {
                     //Söker och tar fram raden som matchar artikelnamnet, använder first eftersom vi utgår från att det enbart finns en av de namnet och vi vill enbart ha en rad att arbeta med.
-                    DataRow result = myCart.table.Select().Where(row => row.Field<string>("Article Name") == Product.products[myStore.articleList.SelectedIndex].ArticleName).First();
+                    DataRow result = myCart.table.Select().Where(row => row.Field<string>("Article Name") == products[myStore.articleList.SelectedIndex].ArticleName).First();
                     int newAmount = int.Parse(result[2].ToString()) + 1;
                     result[2] = newAmount;
-                    result[1] = newAmount * Product.products[myStore.articleList.SelectedIndex].ArticlePrice;
+                    result[1] = newAmount * products[myStore.articleList.SelectedIndex].ArticlePrice;
                 }
             }
             myCart.UpdateTotals();
