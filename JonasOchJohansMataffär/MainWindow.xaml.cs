@@ -490,22 +490,6 @@ namespace JonasOchJohansMataffär
             sw.Close();
         }
 
-        public static Image CreateImage(string filePath)
-        {
-            ImageSource source = new BitmapImage(new Uri(filePath, UriKind.Relative));
-            Image image = new Image
-            {
-                Source = source,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(5),
-                Stretch = Stretch.None,
-            };
-            // A small rendering tweak to ensure maximum visual appeal.
-            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
-            return image;
-        }
-
         //FLYTTA OCH FIXA
         public static ImageSource ReadImage(string fileName)
         {
