@@ -38,8 +38,8 @@ namespace JonasOchJohansMataffär
                 Margin = new Thickness(5),
                 Stretch = Stretch.UniformToFill,
                 Width = 250,
-                Height = 250
-                //Source = ReadImage(@"Pictures\Placeholder.jpg")
+                Height = 250,
+                Source = Utility.ReadImage(@"Pictures\Placeholder.jpg")
             };
             wrapPanel.Children.Add(articleImage);
 
@@ -153,7 +153,7 @@ namespace JonasOchJohansMataffär
 
         private void ArticleList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            //articleImage.Source = ReadImage(Path.Combine(@"Pictures\", articleList.SelectedItem.ToString() + ".jpg"));
+            articleImage.Source = Utility.ReadImage(Path.Combine(@"Pictures\", articleList.SelectedItem.ToString() + ".jpg"));
             priceLabel.Content = "Price: " + Product.products[articleList.SelectedIndex].ArticlePrice + " SEK";
             articleDescription.Content = "";
             addToCartButton.IsEnabled = true;
@@ -467,27 +467,11 @@ namespace JonasOchJohansMataffär
         //SÖNDAG
     }
 
-    public class CSVHandler
+    public static class Utility
     {
-        //SÖNDAG
-    }
-
-    public static class CSVutility
-    {
-        //FLYTTA
-        public static void ToCSV(this DataTable dtDataTable, string strFilePath)
+        public static void CartToCSV(this DataTable dtDataTable, string strFilePath)
         {
             StreamWriter sw = new StreamWriter(strFilePath, false);
-            //headers
-            //for (int i = 0; i < dtDataTable.Columns.Count; i++)
-            //{
-            //    sw.Write(dtDataTable.Columns[i]);
-            //    if (i < dtDataTable.Columns.Count - 1)
-            //    {
-            //        sw.Write(";");
-            //    }
-            //}
-            //sw.Write(sw.NewLine);
             foreach (DataRow row in dtDataTable.Rows)
             {
                 for (int i = 0; i < dtDataTable.Columns.Count; i++)
@@ -504,6 +488,29 @@ namespace JonasOchJohansMataffär
                 sw.Write(sw.NewLine);
             }
             sw.Close();
+        }
+
+        public static Image CreateImage(string filePath)
+        {
+            ImageSource source = new BitmapImage(new Uri(filePath, UriKind.Relative));
+            Image image = new Image
+            {
+                Source = source,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(5),
+                Stretch = Stretch.None,
+            };
+            // A small rendering tweak to ensure maximum visual appeal.
+            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+            return image;
+        }
+
+        //FLYTTA OCH FIXA
+        public static ImageSource ReadImage(string fileName)
+        {
+            ImageSource source = new BitmapImage(new Uri(fileName, UriKind.Relative));
+            return source;
         }
     }
 
@@ -523,9 +530,9 @@ namespace JonasOchJohansMataffär
         public List<string[]> file = File.ReadLines(@"Documents\utbud.csv").Select(a => a.Split(';')).ToList();
 
         //Flytta ner
-        public Store STORE = new Store();
+        public Store myStore = new Store();
 
-        public Cart CART = new Cart();
+        public Cart myCart = new Cart();
 
         public MainWindow()
         {
@@ -535,7 +542,8 @@ namespace JonasOchJohansMataffär
             //Flytta
             if (MessageBox.Show("Would you like to continue on your last cart?", "Cart", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                CART.Load();
+                myCart.Load();
+                myCart.UpdateTotals();
             }
         }
 
@@ -595,14 +603,14 @@ namespace JonasOchJohansMataffär
             grid.Children.Add(cartTitle);
             Grid.SetColumn(cartTitle, 1);
             // Store grid
-            WrapPanel store = STORE.CreatePanel();
-            grid.Children.Add(store);
-            store.Margin = new Thickness(5);
-            Grid.SetRow(store, 1);
-            STORE.addToCartButton.Click += AddToCartButton_Click;
+            WrapPanel storePanel = myStore.CreatePanel();
+            grid.Children.Add(storePanel);
+            storePanel.Margin = new Thickness(5);
+            Grid.SetRow(storePanel, 1);
+            myStore.addToCartButton.Click += AddToCartButton_Click;
 
             // Main cart grid
-            Grid cartGrid = CART.CreateGrid();
+            Grid cartGrid = myCart.CreateGrid();
             grid.Children.Add(cartGrid);
             Grid.SetColumn(cartGrid, 1);
             Grid.SetRow(cartGrid, 1);
@@ -610,69 +618,46 @@ namespace JonasOchJohansMataffär
             //CART.dataGrid.CellEditEnding += GridForCart_CellEditEnding;
 
             //Ta bort och ersätt med metod
-            CART.discountCoupons.Add("code10", 0.1M);
-            CART.discountCoupons.Add("code15", 0.15M);
-            CART.discountCoupons.Add("code20", 0.2M);
+            myCart.discountCoupons.Add("code10", 0.1M);
+            myCart.discountCoupons.Add("code15", 0.15M);
+            myCart.discountCoupons.Add("code20", 0.2M);
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
-            if (CART.table.Rows.Count > 1)
+            if (myCart.table.Rows.Count > 1)
             {
-                CART.table.ToCSV(@"C:\Windows\Temp\cart.txt");
+                myCart.table.CartToCSV(@"C:\Windows\Temp\cart.txt");
             }
         }
 
         //Fundera på flytta?
         public void AddToCartButton_Click(object sender, RoutedEventArgs e)
         {
-            for (int i = 0; i < int.Parse(STORE.storeAmount.Text); i++)
+            for (int i = 0; i < int.Parse(myStore.storeAmount.Text); i++)
             {
-                bool exists = CART.table.AsEnumerable().Any(row => row.Field<string>("Article Name") == Product.products[STORE.articleList.SelectedIndex].ArticleName);
+                bool exists = myCart.table.AsEnumerable().Any(row => row.Field<string>("Article Name") == Product.products[myStore.articleList.SelectedIndex].ArticleName);
                 if (!exists)
                 {
-                    DataRow newRow = CART.table.NewRow();
-                    newRow[0] = Product.products[STORE.articleList.SelectedIndex].ArticleName;
-                    newRow[1] = Product.products[STORE.articleList.SelectedIndex].ArticlePrice;
+                    DataRow newRow = myCart.table.NewRow();
+                    newRow[0] = Product.products[myStore.articleList.SelectedIndex].ArticleName;
+                    newRow[1] = Product.products[myStore.articleList.SelectedIndex].ArticlePrice;
                     newRow[2] = 1;
                     newRow[3] = false;
-                    CART.table.Rows.Add(newRow);
+                    myCart.table.Rows.Add(newRow);
                 }
                 else
                 {
                     //Söker och tar fram raden som matchar artikelnamnet, använder first eftersom vi utgår från att det enbart finns en av de namnet och vi vill enbart ha en rad att arbeta med.
-                    DataRow result = CART.table.Select().Where(row => row.Field<string>("Article Name") == Product.products[STORE.articleList.SelectedIndex].ArticleName).First();
+                    DataRow result = myCart.table.Select().Where(row => row.Field<string>("Article Name") == Product.products[myStore.articleList.SelectedIndex].ArticleName).First();
                     int newAmount = int.Parse(result[2].ToString()) + 1;
                     result[2] = newAmount;
-                    result[1] = newAmount * Product.products[STORE.articleList.SelectedIndex].ArticlePrice;
+                    result[1] = newAmount * Product.products[myStore.articleList.SelectedIndex].ArticlePrice;
                 }
             }
-            CART.UpdateTotals();
-            STORE.storeAmount.Text = "1";
+            myCart.UpdateTotals();
+            myStore.storeAmount.Text = "1";
         }
 
-        //FLYTTA OCH FIXA
-        private Image CreateImage(string filePath)
-        {
-            ImageSource source = new BitmapImage(new Uri(filePath, UriKind.Relative));
-            Image image = new Image
-            {
-                Source = source,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(5),
-                Stretch = Stretch.None,
-            };
-            // A small rendering tweak to ensure maximum visual appeal.
-            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
-            return image;
-        }
-
-        //FLYTTA OCH FIXA
-        private ImageSource ReadImage(string fileName)
-        {
-            ImageSource source = new BitmapImage(new Uri(fileName, UriKind.Relative));
-            return source;
-        }
     }
 }
