@@ -26,14 +26,30 @@ namespace JonasOchJohansMataffär
 
         public List<Product> products = new List<Product>();
 
-
         //Methods
-        public WrapPanel CreatePanel()
+        public Grid CreateGrid()
         {
+            Grid grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { });
+            grid.RowDefinitions.Add(new RowDefinition { MaxHeight = 50 });
+            grid.RowDefinitions.Add(new RowDefinition { });
+
+            Label title = new Label
+            {
+                Content = "Affär",
+                Margin = new Thickness(5),
+                Padding = new Thickness(5),
+                FontSize = 20,
+                VerticalContentAlignment = VerticalAlignment.Center
+            };
+            grid.Children.Add(title);
+
             WrapPanel wrapPanel = new WrapPanel
             {
                 Orientation = Orientation.Horizontal
             };
+            grid.Children.Add(wrapPanel);
+            Grid.SetRow(wrapPanel, 1);
             articleImage = new Image
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -48,6 +64,7 @@ namespace JonasOchJohansMataffär
 
             //Grid for both choosing articles and description
             Grid showArticleGrid = new Grid();
+            showArticleGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(5, GridUnitType.Star) });
             showArticleGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(5, GridUnitType.Star) });
             showArticleGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(75, GridUnitType.Star) });
             showArticleGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(20, GridUnitType.Star) });
@@ -149,7 +166,7 @@ namespace JonasOchJohansMataffär
             addProductGrid.Children.Add(addToCartButton);
             Grid.SetColumn(addToCartButton, 3);
 
-            return wrapPanel;
+            return grid;
         }
 
         //Event handler
@@ -235,9 +252,10 @@ namespace JonasOchJohansMataffär
         public int totalItems = 0;
         public decimal totalPrice = 0;
         public Dictionary<string, decimal> discountCoupons = new Dictionary<string, decimal>();
-        public List<string> usedDiscountCoupons = new List<string>();
+        public List<string> usedDiscount = new List<string>();
 
         public List<Product> products = new List<Product>();
+        public Button payButton;
 
         //Methods
         public Grid CreateGrid()
@@ -246,15 +264,27 @@ namespace JonasOchJohansMataffär
             grid = new Grid();
             grid.Margin = new Thickness(5);
             grid.ColumnDefinitions.Add(new ColumnDefinition());
+            grid.RowDefinitions.Add(new RowDefinition { MaxHeight = 50 });
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(90, GridUnitType.Star) });
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(10, GridUnitType.Star) });
 
+            Label title = new Label
+            {
+                Content = "Kundvagn",
+                Margin = new Thickness(5),
+                Padding = new Thickness(5),
+                FontSize = 20,
+                VerticalContentAlignment = VerticalAlignment.Center
+            };
+            grid.Children.Add(title);
+
             dataGrid = CreateDataGrid();
             grid.Children.Add(dataGrid);
+            Grid.SetRow(dataGrid, 1);
 
             Grid checkOut = CreateCheckOut();
             grid.Children.Add(checkOut);
-            Grid.SetRow(checkOut, 1);
+            Grid.SetRow(checkOut, 2);
 
             //Return a completed grid
             return grid;
@@ -353,13 +383,12 @@ namespace JonasOchJohansMataffär
             Grid.SetColumn(addDiscountCode, 2);
             Grid.SetRow(addDiscountCode, 1);
             // Print receipt and pay for cart
-            Button payButton = new Button
+            payButton = new Button
             {
                 Content = "Pay",
                 Margin = new Thickness(5),
                 Padding = new Thickness(5)
             };
-            payButton.Click += PayButton_Click;
             grid.Children.Add(payButton);
             Grid.SetColumn(payButton, 3);
             Grid.SetRow(payButton, 1);
@@ -377,13 +406,6 @@ namespace JonasOchJohansMataffär
             return grid;
         }
 
-        private void PayButton_Click(object sender, RoutedEventArgs e)
-        {
-            grid.Children.Clear();
-            // ändra  cartTitle (i main) till Kvitto/Receipt
-            // starta receiptklassen för att bygga ett nytt grid-
-        }
-
         public void UpdateTotals()
         {
             totalItems = 0;
@@ -394,7 +416,7 @@ namespace JonasOchJohansMataffär
                 totalItems += int.Parse(row[2].ToString());
                 totalPrice += decimal.Parse(row[1].ToString());
             }
-            foreach (string coupon in usedDiscountCoupons)
+            foreach (string coupon in usedDiscount)
             {
                 totalDiscount += discountCoupons[coupon];
             }
@@ -428,11 +450,11 @@ namespace JonasOchJohansMataffär
         public void AddDiscountCode(object sender, RoutedEventArgs e)
         {
             string inputdiscount = discountCode.Text.ToLower();
-            if (discountCoupons.ContainsKey(inputdiscount) && !usedDiscountCoupons.Contains(inputdiscount))
+            if (discountCoupons.ContainsKey(inputdiscount) && !usedDiscount.Contains(inputdiscount))
             {
-                usedDiscountCoupons.Add(inputdiscount);
+                usedDiscount.Add(inputdiscount);
             }
-            else if (discountCoupons.ContainsKey(inputdiscount) && usedDiscountCoupons.Contains(inputdiscount))
+            else if (discountCoupons.ContainsKey(inputdiscount) && usedDiscount.Contains(inputdiscount))
             {
                 MessageBox.Show("Coupon is already in use", "Coupon", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -477,70 +499,17 @@ namespace JonasOchJohansMataffär
 
     public class Receipt
     {
+        public Grid grid;
 
-        public void BuildRecipt()
+        public Grid CreateGrid(DataTable table, List<string> usedCoupons, Dictionary<string, decimal> discountCodes)
         {
-            Label receiptHeadLabel = CreataReceiptLabel(grid, 0, 0, "RECEIPT", 20);
-            Grid.SetColumnSpan(receiptHeadLabel, 2);
-
-            CreateBackgroundColor(grid, 1, 4);
-
-            Label productNameLabel = CreataReceiptLabel(grid, 1, 0, "NAME", 12);
-
-            Label quantityLabel = CreataReceiptLabel(grid, 1, 1, "QTY", 12);
-
-            Label priceEachLabel = CreataReceiptLabel(grid, 1, 2, "EACH", 12);
-
-            Label totalProductPriceLabel = CreataReceiptLabel(grid, 1, 3, "TOTAL", 12);
-
-
-
-            StackPanel objectsFromCartPanel = new StackPanel
+            decimal totalPrice = 0;
+            decimal totalDiscount = 0;
+            foreach (string coupon in usedCoupons)
             {
-                Orientation = Orientation.Vertical,
-                Margin = new Thickness(5)
-            };
-            grid.Children.Add(objectsFromCartPanel);
-            Grid.SetRow(objectsFromCartPanel, 2);
-            Grid.SetColumn(objectsFromCartPanel, 0);
-            Grid.SetColumnSpan(objectsFromCartPanel, 4);
-
-            //Lägg in produkterna med en foreach och ett nytt grid.
-
-            Label divider = CreataReceiptLabel(grid, 3, 0, "======================================================", 12);
-            Grid.SetColumnSpan(divider, 4);
-
-            Label discountCodeLabel = CreataReceiptLabel(grid, 4, 0, "Code: ", 12);
-            //Grid.SetColumnSpan(discountCodeLabel, 2);
-
-            Label codeUsedLabel = CreataReceiptLabel(grid, 4, 1, "Code", 12);
-            Grid.SetColumnSpan(codeUsedLabel, 2);
-
-            CreateBackgroundColor(grid, 5, 4);
-
-            Label sumBeforeDiscoungLabel = CreataReceiptLabel(grid, 5, 0, "SUM: ", 12);
-            //Grid.SetColumnSpan(sumBeforeDiscoungLabel, 2);
-
-            Label totalCartPriceLabel = CreataReceiptLabel(grid, 5, 1, "TotalPrice", 12);
-            Grid.SetColumnSpan(sumBeforeDiscoungLabel, 2);
-
-            Label discountLabel = CreataReceiptLabel(grid, 6, 0, "Discount: ", 12);
-            //Grid.SetColumnSpan(sumBeforeDiscoungLabel, 2);
-
-            Label amountDiscountLabel = CreataReceiptLabel(grid, 6, 1, "Discount", 12);
-            Grid.SetColumnSpan(sumBeforeDiscoungLabel, 2);
-
-            CreateBackgroundColor(grid, 7, 4);
-
-            Label sumAfterDiscountLabel = CreataReceiptLabel(grid, 7, 0, "Total Cost: ", 12);
-            //Grid.SetColumnSpan(sumBeforeDiscoungLabel, 2);
-
-            Label totalCartPriceAfterDiscountLabel = CreataReceiptLabel(grid, 7, 1, "FinalPrice", 12);
-            Grid.SetColumnSpan(sumBeforeDiscoungLabel, 2);
-        }
-        public Grid CreateGrid()
-        {
-            Grid grid = new Grid();
+                totalDiscount += discountCodes[coupon];
+            }
+            grid = new Grid();
             grid.Margin = new Thickness(5);
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -554,11 +523,70 @@ namespace JonasOchJohansMataffär
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) });
-            grid.ShowGridLines = false;
+
+            Label receiptHeadLabel = CreataReceiptLabel("RECEIPT", grid, 0, 0, 20);
+            Grid.SetColumnSpan(receiptHeadLabel, 2);
+
+            CreateBackgroundColor(grid, 1, 4);
+
+            Label productNameLabel = CreataReceiptLabel("NAME", grid, 1, 0, 12);
+
+            Label quantityLabel = CreataReceiptLabel("QTY", grid, 1, 1, 12);
+
+            Label priceEachLabel = CreataReceiptLabel("EACH", grid, 1, 2, 12);
+
+            Label totalProductPriceLabel = CreataReceiptLabel("TOTAL", grid, 1, 3, 12);
+
+            StackPanel receiptPanel = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                Margin = new Thickness(5)
+            };
+            grid.Children.Add(receiptPanel);
+            Grid.SetRow(receiptPanel, 2);
+            Grid.SetColumn(receiptPanel, 0);
+            Grid.SetColumnSpan(receiptPanel, 4);
+            //Lägg in produkterna med en foreach och ett nytt grid.
+            foreach (DataRow row in table.AsEnumerable())
+            {
+                receiptPanel.Children.Add(CreateReceiptObjekt(row));
+                totalPrice += decimal.Parse(row[1].ToString());
+            }
+
+            Label divider = CreataReceiptLabel("======================================================", grid, 3, 0, 12);
+            Grid.SetColumnSpan(divider, 4);
+
+            //Label discountCodeLabel = CreataReceiptLabel("Code: ", grid, 4, 0,  12);
+            Grid.SetColumnSpan(CreataReceiptLabel("Code: ", grid, 4, 0, 12), 2);
+
+            //Label usedCodeLabel = CreataReceiptLabel("Code", grid, 4, 1,  12);
+            Grid.SetColumnSpan(CreataReceiptLabel("Code", grid, 4, 1, 12), 2);
+
+            CreateBackgroundColor(grid, 5, 4);
+
+            //Label SumBeforeDiscountLabel = CreataReceiptLabel("SUM: ", grid, 5, 0,  12);
+            Grid.SetColumnSpan(CreataReceiptLabel("Total price:", grid, 5, 0, 12), 2);
+
+            Label totalPriceLabel = CreataReceiptLabel($"{totalPrice:N2}kr", grid, 5, 1, 12);
+            Grid.SetColumnSpan(totalPriceLabel, 3);
+
+            CreataReceiptLabel("Discount: ", grid, 6, 0, 12);
+
+            string discountedString = $"{totalPrice * totalDiscount:N2}kr ({totalDiscount * 100}%)";
+            Label discountLabel = CreataReceiptLabel(discountedString, grid, 6, 1, 12);
+            Grid.SetColumnSpan(discountLabel, 3);
+
+            CreateBackgroundColor(grid, 7, 4);
+
+            CreataReceiptLabel("Total Cost: ", grid, 7, 0, 12);
+
+            Label totalPriceDiscountLabel = CreataReceiptLabel($"{totalPrice - (totalPrice * totalDiscount):N2}kr", grid, 7, 1, 12);
+            Grid.SetColumnSpan(totalPriceDiscountLabel, 3);
 
             return grid;
         }
-        private Label CreataReceiptLabel(Grid grid, int row, int column, string content, int fontsize)
+
+        private Label CreataReceiptLabel(string content, Grid grid, int row, int column, int fontsize)
         {
             Label label = new Label
             {
@@ -574,6 +602,7 @@ namespace JonasOchJohansMataffär
             Grid.SetColumn(label, column);
             return label;
         }
+
         private void CreateBackgroundColor(Grid grid, int row, int column)
         {
             Label backGroundColour = new Label
@@ -586,17 +615,24 @@ namespace JonasOchJohansMataffär
         }
 
         //Denna metod ska användas för att bygga ett grid till varje produkt i cart.
-        //private object CreateObjectsFromCartGrid()
-        //{
-        //    Grid objectsFromCartGrid = new Grid;
-        //    objectsFromCartGrid.RowDefinitions.Add(new RowDefinition());
-        //    objectsFromCartGrid.ColumnDefinitions.Add(new ColumnDefinition());
-        //    objectsFromCartGrid.ColumnDefinitions.Add(new ColumnDefinition());
-        //    objectsFromCartGrid.ColumnDefinitions.Add(new ColumnDefinition());
-        //    objectsFromCartGrid.ColumnDefinitions.Add(new ColumnDefinition());
+        private Grid CreateReceiptObjekt(DataRow row)
+        {
+            Grid productGrid = new Grid();
+            productGrid.RowDefinitions.Add(new RowDefinition()); 
+            productGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40, GridUnitType.Star) });
+            productGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) });
+            productGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) });
+            productGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) });
 
-        //    Label totalProductPriceLabel = CreataReceptLabel(grid, 1, 3, "Total", 15);
-        //}
+            decimal unitPrice = decimal.Parse(row[1].ToString()) / decimal.Parse(row[2].ToString());
+            CreataReceiptLabel(row[0].ToString(), productGrid, 0, 0, 11);
+            CreataReceiptLabel(row[2].ToString(), productGrid, 0, 1, 11);
+            CreataReceiptLabel(unitPrice.ToString(), productGrid, 0, 2, 11);
+            CreataReceiptLabel(row[1].ToString(), productGrid, 0, 3, 11);
+
+
+            return productGrid;
+        }
     }
 
     public static class Utility
@@ -639,14 +675,21 @@ namespace JonasOchJohansMataffär
 
     public partial class MainWindow : Window
     {
+        public Grid mainGrid;
+        public Grid storeGrid;
+        public Grid cartGrid;
+        public Grid receiptGrid;
+
         //FLYTTA?
         public List<string[]> file = File.ReadLines(@"Documents\utbud.csv").Select(a => a.Split(';')).ToList();
+
         public List<Product> products = new List<Product>();
 
         //Flytta ner
         public Store myStore = new Store();
 
         public Cart myCart = new Cart();
+        public Receipt myReceipt = new Receipt();
 
         public Label cartTitle;
 
@@ -689,51 +732,28 @@ namespace JonasOchJohansMataffär
             Content = root;
 
             // Main grid
-            Grid grid = new Grid
+            mainGrid = new Grid
             {
                 Margin = new Thickness(5)
             };
-            root.Content = grid;
-            grid.Margin = new Thickness(5);
-            grid.RowDefinitions.Add(new RowDefinition { MaxHeight = 50 });
-            grid.RowDefinitions.Add(new RowDefinition());
-            grid.ColumnDefinitions.Add(new ColumnDefinition());
-            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            root.Content = mainGrid;
+            mainGrid.Margin = new Thickness(5);
+            mainGrid.RowDefinitions.Add(new RowDefinition());
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            mainGrid.ColumnDefinitions.Add(new ColumnDefinition());
 
-            //Titles for store and cart
-            Label storeTitle = new Label
-            {
-                Content = "Affär",
-                Margin = new Thickness(5),
-                Padding = new Thickness(5),
-                FontSize = 20,
-                VerticalContentAlignment = VerticalAlignment.Center
-            };
-            grid.Children.Add(storeTitle);
-            Label cartTitle = new Label
-            {
-                Content = "Kundvagn",
-                Margin = new Thickness(5),
-                Padding = new Thickness(5),
-                FontSize = 20,
-                VerticalContentAlignment = VerticalAlignment.Center
-            };
-            grid.Children.Add(cartTitle);
-            Grid.SetColumn(cartTitle, 1);
             // Store grid
-            WrapPanel storePanel = myStore.CreatePanel();
-            grid.Children.Add(storePanel);
-            storePanel.Margin = new Thickness(5);
-            Grid.SetRow(storePanel, 1);
+            storeGrid = myStore.CreateGrid();
+            mainGrid.Children.Add(storeGrid);
+            storeGrid.Margin = new Thickness(5);
             myStore.addToCartButton.Click += AddToCartButton_Click;
 
             // Main cart grid
-            Grid cartGrid = myCart.CreateGrid();
-            grid.Children.Add(cartGrid);
+            cartGrid = myCart.CreateGrid();
+            mainGrid.Children.Add(cartGrid);
             Grid.SetColumn(cartGrid, 1);
-            Grid.SetRow(cartGrid, 1);
             cartGrid.Margin = new Thickness(5);
-            //CART.dataGrid.CellEditEnding += GridForCart_CellEditEnding;
+            myCart.payButton.Click += PayButton_Click;
 
             //Ta bort och ersätt med metod
             myCart.discountCoupons.Add("code10", 0.1M);
@@ -749,7 +769,6 @@ namespace JonasOchJohansMataffär
             }
         }
 
-        //Fundera på flytta?
         public void AddToCartButton_Click(object sender, RoutedEventArgs e)
         {
             for (int i = 0; i < int.Parse(myStore.storeAmount.Text); i++)
@@ -777,5 +796,23 @@ namespace JonasOchJohansMataffär
             myStore.storeAmount.Text = "1";
         }
 
+        public void PayButton_Click(object sender, RoutedEventArgs e)
+        {
+            receiptGrid = myReceipt.CreateGrid(myCart.table, myCart.usedDiscount, myCart.discountCoupons);
+
+            mainGrid.Children.Remove(cartGrid);
+            mainGrid.Children.Add(receiptGrid);
+            Grid.SetColumn(receiptGrid, 1);
+            if (MessageBox.Show("Confirm payment?", "Checkout", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                myCart.table.Clear();
+                myCart.UpdateTotals();
+                myCart.usedDiscount.Clear();
+                MessageBox.Show("Success", "Success", MessageBoxButton.OK);
+            }
+            mainGrid.Children.Remove(receiptGrid);
+            mainGrid.Children.Add(cartGrid);
+            Grid.SetColumn(cartGrid, 1);
+        }
     }
 }
