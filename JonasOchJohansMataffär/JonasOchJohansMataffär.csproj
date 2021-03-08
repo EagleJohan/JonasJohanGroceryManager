@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Documents\utbud.csv" />
+    <None Remove="Documents\inventory.csv" />
     <None Remove="Generic picture.jpg" />
     <None Remove="Pictures\Banana.jpg" />
     <None Remove="Pictures\Broccoli.jpg" />
@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Documents\utbud.csv">
+    <Content Include="Documents\Inventory.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Generic picture.jpg">

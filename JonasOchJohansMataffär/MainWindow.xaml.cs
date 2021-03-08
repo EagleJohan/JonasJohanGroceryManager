@@ -16,7 +16,6 @@ namespace JonasOchJohansMataffär
     {
         //Variables
         public Image articleImage;
-
         public ComboBox articleList;
         public TextBlock titleHeader;
         public TextBlock articleDescription;
@@ -36,7 +35,7 @@ namespace JonasOchJohansMataffär
 
             Label title = new Label
             {
-                Content = "Affär",
+                Content = "Store",
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
                 FontSize = 20,
@@ -169,12 +168,10 @@ namespace JonasOchJohansMataffär
             };
             addProductGrid.Children.Add(addToCartButton);
             Grid.SetColumn(addToCartButton, 3);
-
             return grid;
         }
 
         //Event handler
-
         private void ArticleList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             articleImage.Source = Utility.ReadImage(Path.Combine(@"Pictures\", articleList.SelectedItem.ToString() + ".jpg"));
@@ -262,6 +259,14 @@ namespace JonasOchJohansMataffär
         public Button payButton;
 
         //Methods
+        public void ReadDiscountCodes()
+        {
+            var lines = File.ReadLines(@"Documents\Inventory.csv").Select(a => a.Split(';')).ToList();
+            foreach (var line in lines)
+            {
+                discountCoupons.Add(line[0], decimal.Parse(line[1]));
+            }
+        }
         public Grid CreateGrid()
         {
             //Creates main grid
@@ -274,7 +279,7 @@ namespace JonasOchJohansMataffär
 
             Label title = new Label
             {
-                Content = "Kundvagn",
+                Content = "Cart",
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
                 FontSize = 20,
@@ -332,7 +337,7 @@ namespace JonasOchJohansMataffär
                 DataType = typeof(bool)
             };
             table.Columns.Add(Deleted);
-            grid.ItemsSource = this.table.DefaultView;
+            grid.ItemsSource = table.DefaultView;
             return grid;
         }
 
@@ -675,6 +680,7 @@ namespace JonasOchJohansMataffär
         public string ArticleName { get; set; }
         public decimal ArticlePrice { get; set; }
         public string ArticleDescription { get; set; }
+        public string ImagePath;
     }
 
     public partial class MainWindow : Window
@@ -685,7 +691,7 @@ namespace JonasOchJohansMataffär
         public Grid receiptGrid;
 
         //FLYTTA?
-        public List<string[]> file = File.ReadLines(@"Documents\utbud.csv").Select(a => a.Split(';')).ToList();
+        public List<string[]> file = File.ReadLines(@"Documents\Inventory.csv").Select(a => a.Split(';')).ToList();
 
         public List<Product> products = new List<Product>();
 
@@ -713,18 +719,10 @@ namespace JonasOchJohansMataffär
         private void Start()
         {
             //Read Cart and business offerings
-            foreach (var line in file)
-            {
-                Product product = new Product
-                {
-                    ArticleDescription = line[0],
-                    ArticleName = line[1],
-                    ArticlePrice = decimal.Parse(line[2])
-                };
-                products.Add(product);
-                myStore.products.Add(product);
-                myCart.products.Add(product);
-            }
+            ReadOfferings(file, products);
+            ReadOfferings(file, myCart.products);
+            ReadOfferings(file, myStore.products);
+
             // Window options
             Title = "Generic Store AB";
             SizeToContent = SizeToContent.Height;
@@ -761,9 +759,20 @@ namespace JonasOchJohansMataffär
             myCart.payButton.Click += PayButton_Click;
 
             //Ta bort och ersätt med metod
-            myCart.discountCoupons.Add("code10", 0.1M);
-            myCart.discountCoupons.Add("code15", 0.15M);
-            myCart.discountCoupons.Add("code20", 0.2M);
+        }
+
+        private void ReadOfferings(List<string[]> file, List<Product> products)
+        {
+            foreach (var line in file)
+            {
+                Product product = new Product
+                {
+                    ArticleDescription = line[0],
+                    ArticleName = line[1],
+                    ArticlePrice = decimal.Parse(line[2])
+                };
+                products.Add(product);
+            }
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
