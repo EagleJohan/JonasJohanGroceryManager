@@ -1,4 +1,4 @@
-﻿    using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -513,7 +513,7 @@ namespace JonasOchJohansMataffär
             {
                 totalDiscount += discountCodes[coupon];
             }
-            string usedCouponsString = string.Join(", ",usedCoupons);
+            string usedCouponsString = string.Join(", ", usedCoupons);
             grid = new Grid();
             grid.Margin = new Thickness(5);
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -623,7 +623,7 @@ namespace JonasOchJohansMataffär
         private Grid CreateReceiptObjekt(DataRow row)
         {
             Grid productGrid = new Grid();
-            productGrid.RowDefinitions.Add(new RowDefinition()); 
+            productGrid.RowDefinitions.Add(new RowDefinition());
             productGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40, GridUnitType.Star) });
             productGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) });
             productGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) });
@@ -634,7 +634,6 @@ namespace JonasOchJohansMataffär
             CreataReceiptLabel(row[2].ToString(), productGrid, 0, 1, 11);
             CreataReceiptLabel(unitPrice.ToString(), productGrid, 0, 2, 11);
             CreataReceiptLabel(row[1].ToString(), productGrid, 0, 3, 11);
-
 
             return productGrid;
         }
