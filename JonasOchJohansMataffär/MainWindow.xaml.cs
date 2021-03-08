@@ -259,13 +259,14 @@ namespace JonasOchJohansMataffär
         public Button payButton;
 
         //Methods
-        public void ReadDiscountCodes()
+        public Dictionary<string, decimal> ReadDiscountCodes(Dictionary<string, decimal> couponDictionary, string filePath)
         {
-            var lines = File.ReadLines(@"Documents\Inventory.csv").Select(a => a.Split(';')).ToList();
+            var lines = File.ReadLines(filePath).Select(a => a.Split(';')).ToList();
             foreach (var line in lines)
             {
-                discountCoupons.Add(line[0], decimal.Parse(line[1]));
+                couponDictionary.Add(line[0], decimal.Parse(line[1]));
             }
+            return couponDictionary;
         }
         public Grid CreateGrid()
         {
@@ -708,6 +709,7 @@ namespace JonasOchJohansMataffär
             InitializeComponent();
             Start();
             Closed += MainWindow_Closed;
+            Closed += CreateLocalFiles;
             //Flytta
             if (MessageBox.Show("Would you like to continue on your last cart?", "Cart", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
@@ -716,13 +718,16 @@ namespace JonasOchJohansMataffär
             }
         }
 
+
         private void Start()
         {
+            CheckLocalStore();
             //Read Cart and business offerings
             ReadOfferings(file, products);
             ReadOfferings(file, myCart.products);
             ReadOfferings(file, myStore.products);
 
+            myCart.ReadDiscountCodes(myCart.discountCoupons, @"Documents\DiscountCodes.csv");
             // Window options
             Title = "Generic Store AB";
             SizeToContent = SizeToContent.Height;
@@ -759,6 +764,25 @@ namespace JonasOchJohansMataffär
             myCart.payButton.Click += PayButton_Click;
 
             //Ta bort och ersätt med metod
+        }
+        private void CreateLocalFiles(object sender, EventArgs e)
+        {
+            if (File.Exists(@"C:\Windows\Temp\JJSTORE"))
+            {
+
+            }
+            else
+            {
+                Directory.CreateDirectory(@"C:\Windows\Temp\JJSTORE");
+            }
+        }
+
+        private void CheckLocalStore()
+        {
+            if (File.Exists("hejhej"))
+            {
+
+            }
         }
 
         private void ReadOfferings(List<string[]> file, List<Product> products)
