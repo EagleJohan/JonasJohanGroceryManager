@@ -691,6 +691,11 @@ namespace JonasOchJohansMataffär
         public Grid cartGrid;
         public Grid receiptGrid;
 
+        //File paths
+        public string DiscountCodePath;
+        public string InventoryPath;
+        public string PictureDirectoryPath;
+
         //FLYTTA?
         public List<string[]> file = File.ReadLines(@"Documents\Inventory.csv").Select(a => a.Split(';')).ToList();
 
@@ -773,13 +778,14 @@ namespace JonasOchJohansMataffär
             }
             else
             {
-                Directory.CreateDirectory(@"C:\Windows\Temp\JJSTORE");
+                Directory.CreateDirectory(@"C:\Windows\Temp\JJSTORE\Documents");
+                Directory.CreateDirectory(@"C:\Windows\Temp\JJSTORE\Pictures");
             }
         }
 
         private void CheckLocalStore()
         {
-            if (File.Exists("hejhej"))
+            if (File.Exists(@"C:\Windows\Temp\JJSTORE"))
             {
 
             }
