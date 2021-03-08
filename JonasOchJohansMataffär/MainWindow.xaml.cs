@@ -19,7 +19,7 @@ namespace JonasOchJohansMataffär
 
         public ComboBox articleList;
         public TextBlock titleHeader;
-        public Label articleDescription;
+        public TextBlock articleDescription;
         public TextBox storeAmount;
         public Label priceLabel;
         public Button addToCartButton;
@@ -78,7 +78,8 @@ namespace JonasOchJohansMataffär
                 Name = "Articles",
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
-                ItemsSource = products.Select(products => products.ArticleName)
+                ItemsSource = products.Select(products => products.ArticleName),
+                MaxWidth = 200
             };
             articleList.DropDownOpened += ArticleList_DropDownOpened;
             articleList.SelectionChanged += ArticleList_SelectionChanged;
@@ -95,11 +96,13 @@ namespace JonasOchJohansMataffär
             showArticleGrid.Children.Add(titleHeader);
 
             //Label to describe the chosen article
-            articleDescription = new Label
+            articleDescription = new TextBlock
             {
-                Content = "Description of articles",
+                Text = "Description of articles",
                 Margin = new Thickness(5),
-                Padding = new Thickness(5)
+                Padding = new Thickness(5),
+                TextWrapping = TextWrapping.Wrap,
+                MaxWidth = 200
             };
             showArticleGrid.Children.Add(articleDescription);
             Grid.SetRow(articleDescription, 1);
@@ -130,6 +133,7 @@ namespace JonasOchJohansMataffär
                 Padding = new Thickness(5),
                 Text = "1",
                 VerticalContentAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
             };
             storeAmount.TextChanged += CheckForMinimumAmount;
             storeAmount.GotFocus += SelectionStartAmount;
@@ -175,7 +179,7 @@ namespace JonasOchJohansMataffär
         {
             articleImage.Source = Utility.ReadImage(Path.Combine(@"Pictures\", articleList.SelectedItem.ToString() + ".jpg"));
             priceLabel.Content = "Price: " + products[articleList.SelectedIndex].ArticlePrice + " SEK";
-            articleDescription.Content = "";
+            articleDescription.Text = products[articleList.SelectedIndex].ArticleDescription;
             addToCartButton.IsEnabled = true;
         }
 
@@ -509,6 +513,7 @@ namespace JonasOchJohansMataffär
             {
                 totalDiscount += discountCodes[coupon];
             }
+            string usedCouponsString = string.Join(", ",usedCoupons);
             grid = new Grid();
             grid.Margin = new Thickness(5);
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -560,7 +565,7 @@ namespace JonasOchJohansMataffär
             Grid.SetColumnSpan(CreataReceiptLabel("Code: ", grid, 4, 0, 12), 2);
 
             //Label usedCodeLabel = CreataReceiptLabel("Code", grid, 4, 1,  12);
-            Grid.SetColumnSpan(CreataReceiptLabel("Code", grid, 4, 1, 12), 2);
+            Grid.SetColumnSpan(CreataReceiptLabel(usedCouponsString, grid, 4, 1, 12), 2);
 
             CreateBackgroundColor(grid, 5, 4);
 
@@ -713,6 +718,7 @@ namespace JonasOchJohansMataffär
             {
                 Product product = new Product
                 {
+                    ArticleDescription = line[0],
                     ArticleName = line[1],
                     ArticlePrice = decimal.Parse(line[2])
                 };
