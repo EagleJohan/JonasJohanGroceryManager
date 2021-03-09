@@ -37,34 +37,15 @@ namespace JonasOchJohansMataffär
             grid.RowDefinitions.Add(new RowDefinition { MaxHeight = 50 });
             grid.RowDefinitions.Add(new RowDefinition { });
 
-<<<<<<< HEAD
             Label title = new Label
             {
                 Content = "Little Shop of Greens",
-=======
-            //Label title = new Label
-            //{
-            //    Content = "Store",
-            //    Margin = new Thickness(5),
-            //    Padding = new Thickness(5),
-            //    FontSize = 20,
-            //    VerticalContentAlignment = VerticalAlignment.Center
-            //};
-            //grid.Children.Add(title);
-            productManager = new Button
-            {
-                Content = "Manage Store",
->>>>>>> e6bd2174a088bf2286556f21e99e85f1c570a56b
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
-                FontSize = 22,
-                FontWeight = FontWeights.Bold,
-                Background = Brushes.DarkGray,
-                Foreground = Brushes.White,
-                VerticalAlignment = VerticalAlignment.Center
+                FontSize = 20,
+                VerticalContentAlignment = VerticalAlignment.Center
             };
-            grid.Children.Add(productManager);
-            //Grid.SetColumn(productManager, 1);
+            grid.Children.Add(title);
 
             WrapPanel wrapPanel = new WrapPanel
             {
@@ -80,11 +61,7 @@ namespace JonasOchJohansMataffär
                 Stretch = Stretch.UniformToFill,
                 Width = 250,
                 Height = 250,
-<<<<<<< HEAD
-                Source = Utility.ReadImage(@"Pictures\Placeholder.png")
-=======
                 Source = Utility.ReadImage(@"C:\Windows\Temp\JJSTORE\Pictures\Placeholder.jpg")
->>>>>>> e6bd2174a088bf2286556f21e99e85f1c570a56b
             };
             wrapPanel.Children.Add(articleImage);
 
@@ -97,6 +74,16 @@ namespace JonasOchJohansMataffär
             showArticleGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(20, GridUnitType.Star) });
             showArticleGrid.ColumnDefinitions.Add(new ColumnDefinition());
             wrapPanel.Children.Add(showArticleGrid);
+
+            productManager = new Button
+            {
+                Content = "Manage Store",
+                Margin = new Thickness(5),
+                Padding = new Thickness(5),
+                FontSize = 22,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            wrapPanel.Children.Add(productManager);
 
             //Combobox to choose article
             articleList = new ComboBox
@@ -768,12 +755,8 @@ namespace JonasOchJohansMataffär
 
         //File paths
         public string DiscountCodePath = @"C:\Windows\Temp\JJSTORE\Documents\DiscountCodes.csv";
-
         public string InventoryPath = @"C:\Windows\Temp\JJSTORE\Documents\Inventory.csv";
         public string PictureDirectoryPath = @"C:\Windows\Temp\JJSTORE\Pictures\";
-
-        //FLYTTA?
-        public List<string[]> file = File.ReadLines(@"Documents\Inventory.csv").Select(a => a.Split(';')).ToList();
 
         public List<Product> products = new List<Product>();
 
@@ -781,8 +764,6 @@ namespace JonasOchJohansMataffär
         public Store myStore = new Store();
         public Cart myCart = new Cart();
         public Receipt myReceipt = new Receipt();
-
-        public Label cartTitle;
 
         public MainWindow()
         {
@@ -813,8 +794,11 @@ namespace JonasOchJohansMataffär
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
             // Scrolling
-            ScrollViewer root = new ScrollViewer();
-            root.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            ScrollViewer root = new ScrollViewer
+            {
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                CanContentScroll = true
+            };
             Content = root;
 
             // Main grid
