@@ -450,9 +450,9 @@ namespace JonasOchJohansMataffär
 
         public void Load()
         {
-            if (File.Exists(@"C:\Windows\Temp\cart.txt"))
+            if (File.Exists(@"C:\Windows\Temp\JJSTORE\cart.txt"))
             {
-                List<string[]> lines = File.ReadLines(@"c:\Windows\Temp\cart.txt").Select(a => a.Split(';')).ToList();
+                List<string[]> lines = File.ReadLines(@"C:\Windows\Temp\JJSTORE\cart.txt").Select(a => a.Split(';')).ToList();
                 foreach (var line in lines)
                 {
                     DataRow newRow = table.NewRow();
@@ -832,9 +832,9 @@ namespace JonasOchJohansMataffär
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
-            if (myCart.table.Rows.Count > 1)
+            if (myCart.table.Rows.Count > 0)
             {
-                myCart.table.CartToCSV(@"C:\Windows\Temp\cart.txt");
+                myCart.table.CartToCSV(@"C:\Windows\Temp\JJSTORE\cart.txt");
             }
         }
 
