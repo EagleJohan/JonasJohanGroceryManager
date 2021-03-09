@@ -71,7 +71,7 @@ namespace JonasOchJohansMataffär
                 Stretch = Stretch.UniformToFill,
                 Width = 250,
                 Height = 250,
-                Source = Utility.ReadImage(@"Pictures\Placeholder.jpg")
+                Source = Utility.ReadImage(@"C:\Windows\Temp\JJSTORE\Pictures\Placeholder.jpg")
             };
             wrapPanel.Children.Add(articleImage);
 
