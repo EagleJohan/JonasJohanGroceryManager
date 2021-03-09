@@ -32,19 +32,19 @@ namespace JonasOchJohansMataffär
         {
             Grid grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { });
+            //grid.ColumnDefinitions.Add(new ColumnDefinition { });
             grid.RowDefinitions.Add(new RowDefinition { MaxHeight = 50 });
             grid.RowDefinitions.Add(new RowDefinition { });
 
-            Label title = new Label
-            {
-                Content = "Store",
-                Margin = new Thickness(5),
-                Padding = new Thickness(5),
-                FontSize = 20,
-                VerticalContentAlignment = VerticalAlignment.Center
-            };
-            grid.Children.Add(title);
+            //Label title = new Label
+            //{
+            //    Content = "Store",
+            //    Margin = new Thickness(5),
+            //    Padding = new Thickness(5),
+            //    FontSize = 20,
+            //    VerticalContentAlignment = VerticalAlignment.Center
+            //};
+            //grid.Children.Add(title);
             productManager = new Button
             {
                 Content = "Manage Store",
@@ -54,7 +54,7 @@ namespace JonasOchJohansMataffär
                 VerticalContentAlignment = VerticalAlignment.Center
             };
             grid.Children.Add(productManager);
-            Grid.SetColumn(productManager, 1);
+            //Grid.SetColumn(productManager, 1);
 
             WrapPanel wrapPanel = new WrapPanel
             {
@@ -477,10 +477,16 @@ namespace JonasOchJohansMataffär
             if (discountCoupons.ContainsKey(inputdiscount) && !usedDiscount.Contains(inputdiscount))
             {
                 usedDiscount.Add(inputdiscount);
+
+                discountCode.BorderBrush = Brushes.Black;
             }
             else if (discountCoupons.ContainsKey(inputdiscount) && usedDiscount.Contains(inputdiscount))
             {
                 MessageBox.Show("Coupon is already in use", "Coupon", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                discountCode.BorderBrush = Brushes.Red;
             }
             discountCode.Text = "";
             UpdateTotals();
@@ -695,7 +701,7 @@ namespace JonasOchJohansMataffär
         public string ArticleName { get; set; }
         public decimal ArticlePrice { get; set; }
         public string ArticleDescription { get; set; }
-        public string ImagePath;
+        public string ImagePath { get; set; }
     }
 
     public partial class MainWindow : Window
@@ -707,6 +713,7 @@ namespace JonasOchJohansMataffär
 
         //File paths
         public string DiscountCodePath = @"C:\Windows\Temp\JJSTORE\Documents\DiscountCodes.csv";
+
         public string InventoryPath = @"C:\Windows\Temp\JJSTORE\Documents\Inventory.csv";
         public string PictureDirectoryPath = @"C:\Windows\Temp\JJSTORE\Pictures\";
 
@@ -741,10 +748,10 @@ namespace JonasOchJohansMataffär
             //Find all paths
             LocatePaths();
             //Read Cart and business offerings
-            ReadOfferings(file, products);
-            ReadOfferings(file, myCart.products);
-            ReadOfferings(file, myStore.products);
-            myCart.ReadDiscountCodes(myCart.discountCoupons, @"Documents\DiscountCodes.csv");
+            ReadOfferings(File.ReadLines(InventoryPath).Select(a => a.Split(';')).ToList(), products);
+            ReadOfferings(File.ReadLines(InventoryPath).Select(a => a.Split(';')).ToList(), myCart.products);
+            ReadOfferings(File.ReadLines(InventoryPath).Select(a => a.Split(';')).ToList(), myStore.products);
+            myCart.ReadDiscountCodes(myCart.discountCoupons, DiscountCodePath);
             // Window options
             Title = "Generic Store AB";
             SizeToContent = SizeToContent.Height;
@@ -780,7 +787,6 @@ namespace JonasOchJohansMataffär
             Grid.SetColumn(cartGrid, 1);
             cartGrid.Margin = new Thickness(5);
             myCart.payButton.Click += PayButton_Click;
-            
         }
 
         private void ProductManager_Click(object sender, RoutedEventArgs e)
