@@ -187,7 +187,7 @@ namespace JonasOchJohansMataffär
         //Event handler
         private void ArticleList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            articleImage.Source = Utility.ReadImage(Path.Combine(@"Pictures\", articleList.SelectedItem.ToString() + ".jpg"));
+            articleImage.Source = Utility.ReadImage(@"C:\Windows\Temp\JJSTORE\Pictures\" + products[articleList.SelectedIndex].ImagePath);
             priceLabel.Content = "Price: " + products[articleList.SelectedIndex].ArticlePrice + " SEK";
             articleDescription.Text = products[articleList.SelectedIndex].ArticleDescription;
             addToCartButton.IsEnabled = true;
@@ -691,7 +691,7 @@ namespace JonasOchJohansMataffär
         //FLYTTA OCH FIXA
         public static ImageSource ReadImage(string fileName)
         {
-            ImageSource source = new BitmapImage(new Uri(fileName, UriKind.Relative));
+            ImageSource source = new BitmapImage(new Uri(fileName, UriKind.RelativeOrAbsolute));
             return source;
         }
     }
@@ -824,7 +824,8 @@ namespace JonasOchJohansMataffär
                 {
                     ArticleDescription = line[0],
                     ArticleName = line[1],
-                    ArticlePrice = decimal.Parse(line[2])
+                    ArticlePrice = decimal.Parse(line[2]),
+                    ImagePath = line[3]
                 };
                 products.Add(product);
             }
