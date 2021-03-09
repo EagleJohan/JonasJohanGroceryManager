@@ -3,9 +3,9 @@ using System.Windows.Controls;
 
 namespace ProductManager
 {
-    public partial class MainWindow : Window
+    public partial class ManagerWindow : Window
     {
-        public MainWindow()
+        public ManagerWindow()
         {
             InitializeComponent();
             Start();

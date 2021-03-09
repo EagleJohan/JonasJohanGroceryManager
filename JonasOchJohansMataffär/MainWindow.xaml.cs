@@ -23,6 +23,7 @@ namespace JonasOchJohansMataffär
         public TextBox storeAmount;
         public Label priceLabel;
         public Button addToCartButton;
+        public Button productManager;
 
         public List<Product> products = new List<Product>();
 
@@ -30,6 +31,7 @@ namespace JonasOchJohansMataffär
         public Grid CreateGrid()
         {
             Grid grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { });
             grid.ColumnDefinitions.Add(new ColumnDefinition { });
             grid.RowDefinitions.Add(new RowDefinition { MaxHeight = 50 });
             grid.RowDefinitions.Add(new RowDefinition { });
@@ -43,6 +45,16 @@ namespace JonasOchJohansMataffär
                 VerticalContentAlignment = VerticalAlignment.Center
             };
             grid.Children.Add(title);
+            productManager = new Button
+            {
+                Content = "Manage Store",
+                Margin = new Thickness(5),
+                Padding = new Thickness(5),
+                FontSize = 20,
+                VerticalContentAlignment = VerticalAlignment.Center
+            };
+            grid.Children.Add(productManager);
+            Grid.SetColumn(productManager, 1);
 
             WrapPanel wrapPanel = new WrapPanel
             {
@@ -760,6 +772,7 @@ namespace JonasOchJohansMataffär
             mainGrid.Children.Add(storeGrid);
             storeGrid.Margin = new Thickness(5);
             myStore.addToCartButton.Click += AddToCartButton_Click;
+            myStore.productManager.Click += ProductManager_Click;
 
             // Main cart grid
             cartGrid = myCart.CreateGrid();
@@ -767,8 +780,13 @@ namespace JonasOchJohansMataffär
             Grid.SetColumn(cartGrid, 1);
             cartGrid.Margin = new Thickness(5);
             myCart.payButton.Click += PayButton_Click;
+            
+        }
 
-            //Ta bort och ersätt med metod
+        private void ProductManager_Click(object sender, RoutedEventArgs e)
+        {
+            ProductManager.ManagerWindow window = new ProductManager.ManagerWindow();
+            window.Show();
         }
 
         private void LocatePaths()
