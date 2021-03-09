@@ -40,7 +40,7 @@ namespace JonasOchJohansMataffär
                 Padding = new Thickness(5),
                 FontSize = 22,
                 FontWeight = FontWeights.Bold,
-                Background = Brushes.Green,
+                Background = Brushes.DarkGray,
                 Foreground = Brushes.White,
                 VerticalAlignment = VerticalAlignment.Center
             };
@@ -305,7 +305,7 @@ namespace JonasOchJohansMataffär
                 FontSize = 22,
                 FontWeight = FontWeights.Bold,
                 Foreground = Brushes.White,
-                Background = Brushes.Red,
+                Background = Brushes.DarkGray,
                 VerticalAlignment = VerticalAlignment.Center
             };
             grid.Children.Add(title);
@@ -646,7 +646,7 @@ namespace JonasOchJohansMataffär
                 Content = content,
                 Margin = new Thickness(5),
                 FontWeight = FontWeights.Bold,
-                FontSize = fontsize,
+                FontSize = 15,
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left
             };
