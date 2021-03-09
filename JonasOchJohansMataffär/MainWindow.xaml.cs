@@ -16,6 +16,7 @@ namespace JonasOchJohansMataffär
     {
         //Variables
         public Image articleImage;
+
         public ComboBox articleList;
         public TextBlock titleHeader;
         public TextBlock articleDescription;
@@ -268,6 +269,7 @@ namespace JonasOchJohansMataffär
             }
             return couponDictionary;
         }
+
         public Grid CreateGrid()
         {
             //Creates main grid
@@ -692,9 +694,9 @@ namespace JonasOchJohansMataffär
         public Grid receiptGrid;
 
         //File paths
-        public string DiscountCodePath;
-        public string InventoryPath;
-        public string PictureDirectoryPath;
+        public string DiscountCodePath = @"C:\Windows\Temp\JJSTORE\Documents\DiscountCodes.csv";
+        public string InventoryPath = @"C:\Windows\Temp\JJSTORE\Documents\Inventory.csv";
+        public string PictureDirectoryPath = @"C:\Windows\Temp\JJSTORE\Pictures\";
 
         //FLYTTA?
         public List<string[]> file = File.ReadLines(@"Documents\Inventory.csv").Select(a => a.Split(';')).ToList();
@@ -714,7 +716,6 @@ namespace JonasOchJohansMataffär
             InitializeComponent();
             Start();
             Closed += MainWindow_Closed;
-            Closed += CreateLocalFiles;
             //Flytta
             if (MessageBox.Show("Would you like to continue on your last cart?", "Cart", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
@@ -723,15 +724,14 @@ namespace JonasOchJohansMataffär
             }
         }
 
-
         private void Start()
         {
-            CheckLocalStore();
+            //Find all paths
+            LocatePaths();
             //Read Cart and business offerings
             ReadOfferings(file, products);
             ReadOfferings(file, myCart.products);
             ReadOfferings(file, myStore.products);
-
             myCart.ReadDiscountCodes(myCart.discountCoupons, @"Documents\DiscountCodes.csv");
             // Window options
             Title = "Generic Store AB";
@@ -770,24 +770,25 @@ namespace JonasOchJohansMataffär
 
             //Ta bort och ersätt med metod
         }
-        private void CreateLocalFiles(object sender, EventArgs e)
-        {
-            if (File.Exists(@"C:\Windows\Temp\JJSTORE"))
-            {
 
-            }
-            else
+        private void LocatePaths()
+        {
+            if (!File.Exists(@"C:\Windows\Temp\JJSTORE\Documents\Inventory.csv"))
             {
+                //Läser in dokument från projektet och skriver över till en lokal destination
+                var documentFiles = Directory.GetFiles(@"Documents\");
                 Directory.CreateDirectory(@"C:\Windows\Temp\JJSTORE\Documents");
+                foreach (var file in documentFiles)
+                {
+                    File.Copy(file, @"C:\Windows\Temp\JJSTORE\" + file);
+                }
+                //Läser in bilder från projektet och skriver över till en lokal destination
+                var imageFiles = Directory.GetFiles(@"Pictures\");
                 Directory.CreateDirectory(@"C:\Windows\Temp\JJSTORE\Pictures");
-            }
-        }
-
-        private void CheckLocalStore()
-        {
-            if (File.Exists(@"C:\Windows\Temp\JJSTORE"))
-            {
-
+                foreach (var file in imageFiles)
+                {
+                    File.Copy(file, @"C:\Windows\Temp\JJSTORE\" + file);
+                }
             }
         }
 
