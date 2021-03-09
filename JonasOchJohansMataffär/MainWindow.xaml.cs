@@ -35,11 +35,14 @@ namespace JonasOchJohansMataffär
 
             Label title = new Label
             {
-                Content = "Store",
+                Content = "Little Shop of Greens",
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
-                FontSize = 20,
-                VerticalContentAlignment = VerticalAlignment.Center
+                FontSize = 22,
+                FontWeight = FontWeights.Bold,
+                Background = Brushes.Green,
+                Foreground = Brushes.White,
+                VerticalAlignment = VerticalAlignment.Center
             };
             grid.Children.Add(title);
 
@@ -57,7 +60,7 @@ namespace JonasOchJohansMataffär
                 Stretch = Stretch.UniformToFill,
                 Width = 250,
                 Height = 250,
-                Source = Utility.ReadImage(@"Pictures\Placeholder.jpg")
+                Source = Utility.ReadImage(@"Pictures\Placeholder.png")
             };
             wrapPanel.Children.Add(articleImage);
 
@@ -77,6 +80,8 @@ namespace JonasOchJohansMataffär
                 Name = "Articles",
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
+                FontSize = 12,
+                FontWeight = FontWeights.SemiBold,
                 ItemsSource = products.Select(products => products.ArticleName),
                 MaxWidth = 200
             };
@@ -90,7 +95,9 @@ namespace JonasOchJohansMataffär
                 Text = "Article",
                 IsHitTestVisible = false,
                 Margin = new Thickness(5),
-                Padding = new Thickness(5)
+                Padding = new Thickness(5),
+                 FontSize = 12,
+                FontWeight = FontWeights.SemiBold
             };
             showArticleGrid.Children.Add(titleHeader);
 
@@ -101,7 +108,10 @@ namespace JonasOchJohansMataffär
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
                 TextWrapping = TextWrapping.Wrap,
-                MaxWidth = 200
+                MaxWidth = 200,
+                FontSize = 12,
+                FontWeight = FontWeights.SemiBold,
+                FontStyle = FontStyles.Italic
             };
             showArticleGrid.Children.Add(articleDescription);
             Grid.SetRow(articleDescription, 1);
@@ -110,7 +120,9 @@ namespace JonasOchJohansMataffär
             {
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
-                Content = "Price:"
+                Content = "Price:",
+                 FontSize = 15,
+                FontWeight = FontWeights.Bold,
             };
             showArticleGrid.Children.Add(priceLabel);
             Grid.SetRow(priceLabel, 2);
@@ -130,6 +142,7 @@ namespace JonasOchJohansMataffär
             {
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
+                FontSize = 15,
                 Text = "1",
                 VerticalContentAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center
@@ -144,7 +157,9 @@ namespace JonasOchJohansMataffär
             {
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
-                Content = "-"
+                Content = "-",
+                FontSize = 15,
+                FontWeight = FontWeights.SemiBold,
             };
             decreaseAmount.Click += DecreaseAmount_Click;
             addProductGrid.Children.Add(decreaseAmount);
@@ -153,7 +168,9 @@ namespace JonasOchJohansMataffär
             {
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
-                Content = "+"
+                Content = "+",
+                FontSize = 15,
+                FontWeight = FontWeights.SemiBold,
             };
             increaseAmount.Click += IncreaseAmount_Click;
             addProductGrid.Children.Add(increaseAmount);
@@ -164,7 +181,9 @@ namespace JonasOchJohansMataffär
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
                 Content = "Add to cart",
-                IsEnabled = false
+                IsEnabled = false,
+                FontSize = 12,
+                FontWeight = FontWeights.Bold
             };
             addProductGrid.Children.Add(addToCartButton);
             Grid.SetColumn(addToCartButton, 3);
@@ -280,11 +299,14 @@ namespace JonasOchJohansMataffär
 
             Label title = new Label
             {
-                Content = "Cart",
+                Content = "Your Shopping Cart",
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
-                FontSize = 20,
-                VerticalContentAlignment = VerticalAlignment.Center
+                FontSize = 22,
+                FontWeight = FontWeights.Bold,
+                Foreground = Brushes.White,
+                Background = Brushes.Red,
+                VerticalAlignment = VerticalAlignment.Center
             };
             grid.Children.Add(title);
 
@@ -310,7 +332,11 @@ namespace JonasOchJohansMataffär
                 CanUserReorderColumns = false,
                 CanUserResizeColumns = false,
                 CanUserResizeRows = false,
-                CanUserSortColumns = false
+                CanUserSortColumns = false,
+                Margin = new Thickness(5),
+                FontSize = 14,
+                FontWeight = FontWeights.Bold,
+                ColumnWidth = 90,
             };
             //Create datatable to store information to display on datagrid
             table = new DataTable();
@@ -358,7 +384,9 @@ namespace JonasOchJohansMataffär
             {
                 Content = "Totals",
                 Margin = new Thickness(5),
-                Padding = new Thickness(5)
+                Padding = new Thickness(5),
+                FontSize = 15,
+                FontWeight = FontWeights.SemiBold
             };
             grid.Children.Add(totalLabel);
             Grid.SetColumnSpan(totalLabel, 5);
@@ -369,7 +397,11 @@ namespace JonasOchJohansMataffär
             {
                 Content = "Coupon:",
                 Margin = new Thickness(5),
-                Padding = new Thickness(5)
+                Padding = new Thickness(5),
+                FontSize = 18,
+                FontWeight = FontWeights.SemiBold,
+                VerticalAlignment = VerticalAlignment.Center,
+
             };
             grid.Children.Add(discountLabel);
             Grid.SetRow(discountLabel, 1);
@@ -384,9 +416,12 @@ namespace JonasOchJohansMataffär
             Grid.SetRow(discountCode, 1);
             Button addDiscountCode = new Button
             {
-                Content = "Enter",
+                Content = "      Klick to\nvalidate coupon",
                 Margin = new Thickness(5),
-                Padding = new Thickness(5)
+                Padding = new Thickness(5),
+                FontSize = 10,
+                FontStyle = FontStyles.Italic,
+                FontWeight = FontWeights.SemiBold,
             };
             grid.Children.Add(addDiscountCode);
             addDiscountCode.Click += AddDiscountCode;
@@ -395,9 +430,12 @@ namespace JonasOchJohansMataffär
             // Print receipt and pay for cart
             payButton = new Button
             {
-                Content = "Pay",
+                Content = "Checkout",
                 Margin = new Thickness(5),
-                Padding = new Thickness(5)
+                Padding = new Thickness(5),
+                FontSize = 15,
+                FontWeight = FontWeights.Bold,
+                Foreground = Brushes.Green
             };
             grid.Children.Add(payButton);
             Grid.SetColumn(payButton, 3);
@@ -405,9 +443,13 @@ namespace JonasOchJohansMataffär
             //Clear all
             Button clearAllCart = new Button
             {
-                Content = "Delete All",
+                Content = "Clear Cart",
                 Margin = new Thickness(5),
-                Padding = new Thickness(5)
+                Padding = new Thickness(5),
+                FontSize = 15,
+                FontWeight = FontWeights.Bold,
+                Foreground = Brushes.Red
+              
             };
             clearAllCart.Click += delegate { table.Rows.Clear(); };
             grid.Children.Add(clearAllCart);
@@ -430,7 +472,7 @@ namespace JonasOchJohansMataffär
             {
                 totalDiscount += discountCoupons[coupon];
             }
-            totalLabel.Content = $"Total quantity: {totalItems} pcs Total price: {totalPrice:N2}kr\n" +
+            totalLabel.Content = $"Total quantity: {totalItems}pcs  Total price: {totalPrice:N2}kr\n" +
                                  $"Total price after discount coupons: {totalPrice * (1 - totalDiscount):N2}kr";
         }
 
