@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using ProductManager;
 
 namespace JonasOchJohansMataffär
 {
@@ -16,12 +17,14 @@ namespace JonasOchJohansMataffär
     {
         //Variables
         public Image articleImage;
+
         public ComboBox articleList;
         public TextBlock titleHeader;
         public TextBlock articleDescription;
         public TextBox storeAmount;
         public Label priceLabel;
         public Button addToCartButton;
+        public Button productManager;
 
         public List<Product> products = new List<Product>();
 
@@ -30,12 +33,28 @@ namespace JonasOchJohansMataffär
         {
             Grid grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { });
+            //grid.ColumnDefinitions.Add(new ColumnDefinition { });
             grid.RowDefinitions.Add(new RowDefinition { MaxHeight = 50 });
             grid.RowDefinitions.Add(new RowDefinition { });
 
+<<<<<<< HEAD
             Label title = new Label
             {
                 Content = "Little Shop of Greens",
+=======
+            //Label title = new Label
+            //{
+            //    Content = "Store",
+            //    Margin = new Thickness(5),
+            //    Padding = new Thickness(5),
+            //    FontSize = 20,
+            //    VerticalContentAlignment = VerticalAlignment.Center
+            //};
+            //grid.Children.Add(title);
+            productManager = new Button
+            {
+                Content = "Manage Store",
+>>>>>>> e6bd2174a088bf2286556f21e99e85f1c570a56b
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
                 FontSize = 22,
@@ -44,7 +63,8 @@ namespace JonasOchJohansMataffär
                 Foreground = Brushes.White,
                 VerticalAlignment = VerticalAlignment.Center
             };
-            grid.Children.Add(title);
+            grid.Children.Add(productManager);
+            //Grid.SetColumn(productManager, 1);
 
             WrapPanel wrapPanel = new WrapPanel
             {
@@ -60,7 +80,11 @@ namespace JonasOchJohansMataffär
                 Stretch = Stretch.UniformToFill,
                 Width = 250,
                 Height = 250,
+<<<<<<< HEAD
                 Source = Utility.ReadImage(@"Pictures\Placeholder.png")
+=======
+                Source = Utility.ReadImage(@"C:\Windows\Temp\JJSTORE\Pictures\Placeholder.jpg")
+>>>>>>> e6bd2174a088bf2286556f21e99e85f1c570a56b
             };
             wrapPanel.Children.Add(articleImage);
 
@@ -193,7 +217,7 @@ namespace JonasOchJohansMataffär
         //Event handler
         private void ArticleList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            articleImage.Source = Utility.ReadImage(Path.Combine(@"Pictures\", articleList.SelectedItem.ToString() + ".jpg"));
+            articleImage.Source = Utility.ReadImage(@"C:\Windows\Temp\JJSTORE\Pictures\" + products[articleList.SelectedIndex].ImagePath);
             priceLabel.Content = "Price: " + products[articleList.SelectedIndex].ArticlePrice + " SEK";
             articleDescription.Text = products[articleList.SelectedIndex].ArticleDescription;
             addToCartButton.IsEnabled = true;
@@ -287,6 +311,7 @@ namespace JonasOchJohansMataffär
             }
             return couponDictionary;
         }
+
         public Grid CreateGrid()
         {
             //Creates main grid
@@ -338,6 +363,7 @@ namespace JonasOchJohansMataffär
                 FontWeight = FontWeights.Bold,
                 ColumnWidth = 90,
             };
+            grid.CellEditEnding += Grid_CellEditEnding;
             //Create datatable to store information to display on datagrid
             table = new DataTable();
             table.Columns.Add(new DataColumn
@@ -478,9 +504,9 @@ namespace JonasOchJohansMataffär
 
         public void Load()
         {
-            if (File.Exists(@"C:\Windows\Temp\cart.txt"))
+            if (File.Exists(@"C:\Windows\Temp\JJSTORE\cart.csv"))
             {
-                List<string[]> lines = File.ReadLines(@"c:\Windows\Temp\cart.txt").Select(a => a.Split(';')).ToList();
+                List<string[]> lines = File.ReadLines(@"C:\Windows\Temp\JJSTORE\cart.csv").Select(a => a.Split(';')).ToList();
                 foreach (var line in lines)
                 {
                     DataRow newRow = table.NewRow();
@@ -505,16 +531,22 @@ namespace JonasOchJohansMataffär
             if (discountCoupons.ContainsKey(inputdiscount) && !usedDiscount.Contains(inputdiscount))
             {
                 usedDiscount.Add(inputdiscount);
+
+                discountCode.BorderBrush = Brushes.Black;
             }
             else if (discountCoupons.ContainsKey(inputdiscount) && usedDiscount.Contains(inputdiscount))
             {
                 MessageBox.Show("Coupon is already in use", "Coupon", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            else
+            {
+                discountCode.BorderBrush = Brushes.Red;
+            }
             discountCode.Text = "";
             UpdateTotals();
         }
 
-        private void GridForCart_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private void Grid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             if ("Amount" == e.Column.Header.ToString() || "Price" == e.Column.Header.ToString())
             {
@@ -547,6 +579,7 @@ namespace JonasOchJohansMataffär
             }
             UpdateTotals();
         }
+
     }
 
     public class Receipt
@@ -689,18 +722,18 @@ namespace JonasOchJohansMataffär
 
     public static class Utility
     {
-        public static void CartToCSV(this DataTable dtDataTable, string strFilePath)
+        public static void CartToCSV(this DataTable datatable, string filepath)
         {
-            StreamWriter sw = new StreamWriter(strFilePath, false);
-            foreach (DataRow row in dtDataTable.Rows)
+            StreamWriter sw = new StreamWriter(filepath, false);
+            foreach (DataRow row in datatable.Rows)
             {
-                for (int i = 0; i < dtDataTable.Columns.Count; i++)
+                for (int i = 0; i < datatable.Columns.Count; i++)
                 {
                     if (!Convert.IsDBNull(row[i]))
                     {
                         sw.Write(row[i].ToString());
                     }
-                    if (i < dtDataTable.Columns.Count - 1)
+                    if (i < datatable.Columns.Count - 1)
                     {
                         sw.Write(";");
                     }
@@ -713,7 +746,7 @@ namespace JonasOchJohansMataffär
         //FLYTTA OCH FIXA
         public static ImageSource ReadImage(string fileName)
         {
-            ImageSource source = new BitmapImage(new Uri(fileName, UriKind.Relative));
+            ImageSource source = new BitmapImage(new Uri(fileName, UriKind.RelativeOrAbsolute));
             return source;
         }
     }
@@ -723,7 +756,7 @@ namespace JonasOchJohansMataffär
         public string ArticleName { get; set; }
         public decimal ArticlePrice { get; set; }
         public string ArticleDescription { get; set; }
-        public string ImagePath;
+        public string ImagePath { get; set; }
     }
 
     public partial class MainWindow : Window
@@ -732,6 +765,12 @@ namespace JonasOchJohansMataffär
         public Grid storeGrid;
         public Grid cartGrid;
         public Grid receiptGrid;
+
+        //File paths
+        public string DiscountCodePath = @"C:\Windows\Temp\JJSTORE\Documents\DiscountCodes.csv";
+
+        public string InventoryPath = @"C:\Windows\Temp\JJSTORE\Documents\Inventory.csv";
+        public string PictureDirectoryPath = @"C:\Windows\Temp\JJSTORE\Pictures\";
 
         //FLYTTA?
         public List<string[]> file = File.ReadLines(@"Documents\Inventory.csv").Select(a => a.Split(';')).ToList();
@@ -751,7 +790,6 @@ namespace JonasOchJohansMataffär
             InitializeComponent();
             Start();
             Closed += MainWindow_Closed;
-            Closed += CreateLocalFiles;
             //Flytta
             if (MessageBox.Show("Would you like to continue on your last cart?", "Cart", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
@@ -760,16 +798,15 @@ namespace JonasOchJohansMataffär
             }
         }
 
-
         private void Start()
         {
-            CheckLocalStore();
+            //Find all paths
+            LocatePaths();
             //Read Cart and business offerings
-            ReadOfferings(file, products);
-            ReadOfferings(file, myCart.products);
-            ReadOfferings(file, myStore.products);
-
-            myCart.ReadDiscountCodes(myCart.discountCoupons, @"Documents\DiscountCodes.csv");
+            ReadOfferings(File.ReadLines(InventoryPath).Select(a => a.Split(';')).ToList(), products);
+            ReadOfferings(File.ReadLines(InventoryPath).Select(a => a.Split(';')).ToList(), myCart.products);
+            ReadOfferings(File.ReadLines(InventoryPath).Select(a => a.Split(';')).ToList(), myStore.products);
+            myCart.ReadDiscountCodes(myCart.discountCoupons, DiscountCodePath);
             // Window options
             Title = "Generic Store AB";
             SizeToContent = SizeToContent.Height;
@@ -797,6 +834,7 @@ namespace JonasOchJohansMataffär
             mainGrid.Children.Add(storeGrid);
             storeGrid.Margin = new Thickness(5);
             myStore.addToCartButton.Click += AddToCartButton_Click;
+            myStore.productManager.Click += ProductManager_Click;
 
             // Main cart grid
             cartGrid = myCart.CreateGrid();
@@ -804,26 +842,32 @@ namespace JonasOchJohansMataffär
             Grid.SetColumn(cartGrid, 1);
             cartGrid.Margin = new Thickness(5);
             myCart.payButton.Click += PayButton_Click;
-
-            //Ta bort och ersätt med metod
-        }
-        private void CreateLocalFiles(object sender, EventArgs e)
-        {
-            if (File.Exists(@"C:\Windows\Temp\JJSTORE"))
-            {
-
-            }
-            else
-            {
-                Directory.CreateDirectory(@"C:\Windows\Temp\JJSTORE");
-            }
         }
 
-        private void CheckLocalStore()
+        private void ProductManager_Click(object sender, RoutedEventArgs e)
         {
-            if (File.Exists("hejhej"))
-            {
+            ManagerWindow window = new ManagerWindow();
+            window.Show();
+        }
 
+        private void LocatePaths()
+        {
+            if (!File.Exists(@"C:\Windows\Temp\JJSTORE\Documents\Inventory.csv"))
+            {
+                //Läser in dokument från projektet och skriver över till en lokal destination
+                var documentFiles = Directory.GetFiles(@"Documents\");
+                Directory.CreateDirectory(@"C:\Windows\Temp\JJSTORE\Documents");
+                foreach (var file in documentFiles)
+                {
+                    File.Copy(file, @"C:\Windows\Temp\JJSTORE\" + file);
+                }
+                //Läser in bilder från projektet och skriver över till en lokal destination
+                var imageFiles = Directory.GetFiles(@"Pictures\");
+                Directory.CreateDirectory(@"C:\Windows\Temp\JJSTORE\Pictures");
+                foreach (var file in imageFiles)
+                {
+                    File.Copy(file, @"C:\Windows\Temp\JJSTORE\" + file);
+                }
             }
         }
 
@@ -835,7 +879,8 @@ namespace JonasOchJohansMataffär
                 {
                     ArticleDescription = line[0],
                     ArticleName = line[1],
-                    ArticlePrice = decimal.Parse(line[2])
+                    ArticlePrice = decimal.Parse(line[2]),
+                    ImagePath = line[3]
                 };
                 products.Add(product);
             }
@@ -843,9 +888,9 @@ namespace JonasOchJohansMataffär
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
-            if (myCart.table.Rows.Count > 1)
+            if (myCart.table.Rows.Count > 0)
             {
-                myCart.table.CartToCSV(@"C:\Windows\Temp\cart.txt");
+                myCart.table.CartToCSV(@"C:\Windows\Temp\JJSTORE\cart.csv");
             }
         }
 
