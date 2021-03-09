@@ -727,7 +727,6 @@ namespace JonasOchJohansMataffär
 
         //Flytta ner
         public Store myStore = new Store();
-
         public Cart myCart = new Cart();
         public Receipt myReceipt = new Receipt();
 
