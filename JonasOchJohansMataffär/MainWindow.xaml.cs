@@ -768,6 +768,9 @@ namespace JonasOchJohansMataffär
         public Cart myCart = new Cart();
         public Receipt myReceipt = new Receipt();
 
+
+        ManagerWindow managerWindow = new ManagerWindow();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -785,11 +788,7 @@ namespace JonasOchJohansMataffär
         {
             //Find all paths
             LocatePaths();
-            //Read Cart and business offerings
-            ReadOfferings(File.ReadLines(InventoryPath).Select(a => a.Split(';')).ToList(), products);
-            ReadOfferings(File.ReadLines(InventoryPath).Select(a => a.Split(';')).ToList(), myCart.products);
-            ReadOfferings(File.ReadLines(InventoryPath).Select(a => a.Split(';')).ToList(), myStore.products);
-            myCart.ReadDiscountCodes(myCart.discountCoupons, DiscountCodePath);
+            LoadLocalFiles();
             // Window options
             Title = "Generic Store AB";
             SizeToContent = SizeToContent.Height;
@@ -821,6 +820,7 @@ namespace JonasOchJohansMataffär
             storeGrid.Margin = new Thickness(5);
             myStore.addToCartButton.Click += AddToCartButton_Click;
             myStore.productManager.Click += ProductManager_Click;
+            managerWindow.Closed += (sender, e) => LoadLocalFiles();
 
             // Main cart grid
             cartGrid = myCart.CreateGrid();
@@ -830,10 +830,23 @@ namespace JonasOchJohansMataffär
             myCart.payButton.Click += PayButton_Click;
         }
 
+        private void LoadLocalFiles()
+        {
+            //Read Cart and business offerings
+            products.Clear();
+            ReadOfferings(File.ReadLines(InventoryPath).Select(a => a.Split(';')).ToList(), products);
+            myCart.products.Clear();
+            ReadOfferings(File.ReadLines(InventoryPath).Select(a => a.Split(';')).ToList(), myCart.products);
+            myStore.products.Clear();
+            ReadOfferings(File.ReadLines(InventoryPath).Select(a => a.Split(';')).ToList(), myStore.products);
+            myCart.discountCoupons.Clear();
+            myCart.usedDiscount.Clear();
+            myCart.ReadDiscountCodes(myCart.discountCoupons, DiscountCodePath);
+        }
+
         private void ProductManager_Click(object sender, RoutedEventArgs e)
         {
-            ManagerWindow window = new ManagerWindow();
-            window.Show();
+            managerWindow.Show();
         }
 
         private void LocatePaths()

@@ -1,10 +1,23 @@
-﻿using System.Windows;
+﻿using Microsoft.Win32;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace ProductManager
 {
     public partial class ManagerWindow : Window
     {
+        public TextBox nameBox;
+
+        public TextBox descriptionBox;
+
+        public TextBox priceBox;
+
+        public Button imageSelectButton;
+        public Label ImageURLLabel;
+        public string imageURL;
+
+        public OpenFileDialog fileDialog = new OpenFileDialog();
+
         public ManagerWindow()
         {
             InitializeComponent();
@@ -15,8 +28,7 @@ namespace ProductManager
         {
             // Window options
             Title = "Manage Products";
-            Width = 300;
-            Height = 450;
+            SizeToContent = SizeToContent.WidthAndHeight;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
             // Scrolling
@@ -29,84 +41,47 @@ namespace ProductManager
             root.Content = grid;
             grid.Margin = new Thickness(5);
             grid.RowDefinitions.Add(new RowDefinition());
-            grid.RowDefinitions.Add(new RowDefinition());
-            grid.RowDefinitions.Add(new RowDefinition());
-            grid.RowDefinitions.Add(new RowDefinition());
-            grid.RowDefinitions.Add(new RowDefinition());
-            grid.RowDefinitions.Add(new RowDefinition());
-            grid.RowDefinitions.Add(new RowDefinition());
-            grid.RowDefinitions.Add(new RowDefinition());
-            grid.RowDefinitions.Add(new RowDefinition());
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70, GridUnitType.Star) });
-            grid.ShowGridLines = true;
-            Label headerLabel = CreateLabel("Manage Products", grid, 0, 0, 20);
-            Grid.SetColumnSpan(headerLabel, 2);
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
 
-            Label addProductsLabel = CreateLabel("Add New Product", grid, 2, 0, 15);
-            Grid.SetColumnSpan(addProductsLabel, 2);
-
-            Label idLabel = CreateLabel("ID: ", grid, 3, 0, 12);
-
-            Label nameLabel = CreateLabel("Name: ", grid, 4, 0, 12);
-
-            Label descriptionLabel = CreateLabel("Description: ", grid, 5, 0, 12);
-
-            Label priceLabel = CreateLabel("Price: ", grid, 6, 0, 12);
-
-            Label imageLabel = CreateLabel("Image URL: ", grid, 7, 0, 12);
-
-            TextBox idBox = CreateTextbox(grid, 3, 2);
-
-            TextBox nameBox = CreateTextbox(grid, 4, 2);
-
-            TextBox descriptionBox = CreateTextbox(grid, 5, 2);
-
-            TextBox priceBox = CreateTextbox(grid, 6, 2);
-
-            TextBox imageBox = CreateTextbox(grid, 7, 2);
-
-            Button submitButton = new Button
+            //Stack panel
+            StackPanel stackPanel = new StackPanel
             {
-                Content = "Submit",
-                Width = 130,
-                FontSize = 15,
-                FontWeight = FontWeights.Bold,
-                FontStyle = FontStyles.Italic,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
+                Orientation = Orientation.Vertical
             };
-            grid.Children.Add(submitButton);
-            Grid.SetRow(submitButton, 8);
-            Grid.SetColumnSpan(submitButton, 2);
-
-            ComboBox productList = new ComboBox
+            grid.Children.Add(stackPanel);
+            Label headerLabel = new Label
             {
-                Name = "Productlist"
-            };
-        }
-
-        private Label CreateLabel(string content, Grid grid, int row, int column, int fontsize)
-        {
-            Label label = new Label
-            {
-                Content = content,
-                // Width = 80,
+                Content = "Manage products",
                 Margin = new Thickness(5),
                 FontWeight = FontWeights.Bold,
-                FontSize = fontsize,
+                FontSize = 20,
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left
             };
-            grid.Children.Add(label);
-            Grid.SetRow(label, row);
-            Grid.SetColumn(label, column);
-            return label;
-        }
+            stackPanel.Children.Add(headerLabel);
+            Label addProductsLabel = new Label
+            {
+                Content = "Add products",
+                // Width = 80,
+                Margin = new Thickness(5),
+                FontWeight = FontWeights.Bold,
+                FontSize = 20,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            stackPanel.Children.Add(addProductsLabel);
 
-        private TextBox CreateTextbox(Grid grid, int row, int column)
-        {
-            TextBox textbox = new TextBox
+            Label nameLabel = new Label
+            {
+                Content = "Article name",
+                Margin = new Thickness(5),
+                FontWeight = FontWeights.Bold,
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            stackPanel.Children.Add(nameLabel);
+            nameBox = new TextBox
             {
                 Name = "",
                 Width = 150,
@@ -116,10 +91,103 @@ namespace ProductManager
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left
             };
-            grid.Children.Add(textbox);
-            Grid.SetRow(textbox, row);
-            Grid.SetColumn(textbox, column);
-            return textbox;
+            stackPanel.Children.Add(nameBox);
+
+            Label descriptionLabel = new Label
+            {
+                Content = "Description",
+                Margin = new Thickness(5),
+                FontWeight = FontWeights.Bold,
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            stackPanel.Children.Add(descriptionLabel);
+            descriptionBox = new TextBox
+            {
+                Name = "",
+                Width = 150,
+                Margin = new Thickness(5),
+                FontWeight = FontWeights.Bold,
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            stackPanel.Children.Add(descriptionBox);
+            Label priceLabel = new Label
+            {
+                Content = "Price",
+                Margin = new Thickness(5),
+                FontWeight = FontWeights.Bold,
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            stackPanel.Children.Add(priceLabel);
+            priceBox = new TextBox
+            {
+                Name = "",
+                Width = 150,
+                Margin = new Thickness(5),
+                FontWeight = FontWeights.Bold,
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            stackPanel.Children.Add(priceBox);
+            ImageURLLabel = new Label
+            {
+                Content = "",
+                Margin = new Thickness(5),
+                FontWeight = FontWeights.Bold,
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            stackPanel.Children.Add(ImageURLLabel);
+            imageSelectButton = new Button
+            {
+                Content = "Add image",
+                Margin = new Thickness(5),
+                Width = 130,
+                FontSize = 15,
+                FontWeight = FontWeights.Bold,
+                FontStyle = FontStyles.Italic,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            imageSelectButton.Click += OpenDialog;
+            stackPanel.Children.Add(imageSelectButton);
+            Button submitButton = new Button
+            {
+                Content = "Submit",
+                Margin = new Thickness(5),
+                Width = 130,
+                FontSize = 15,
+                FontWeight = FontWeights.Bold,
+                FontStyle = FontStyles.Italic,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            submitButton.Click += CreateProduct;
+            stackPanel.Children.Add(submitButton);
+            Grid.SetRow(submitButton, 8);
+            Grid.SetColumnSpan(submitButton, 2);
+        }
+
+        private void CreateProduct(object sender, RoutedEventArgs e)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        private void OpenDialog(object sender, RoutedEventArgs e)
+        {
+            bool? isOK = true;
+            if (isOK == fileDialog.ShowDialog())
+            {
+                imageURL = fileDialog.FileName;
+                ImageURLLabel.Content = $"Image url: \n{imageURL}";
+            }
         }
     }
 }
