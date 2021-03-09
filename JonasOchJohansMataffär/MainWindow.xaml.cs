@@ -42,7 +42,10 @@ namespace JonasOchJohansMataffär
                 Content = "Little Shop of Greens",
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
-                FontSize = 20,
+                FontSize = 22,
+                FontWeight = FontWeights.Bold,
+                Foreground = Brushes.White,
+                Background = Brushes.DarkGray,
                 VerticalContentAlignment = VerticalAlignment.Center
             };
             grid.Children.Add(title);
