@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using ProductManager;
 
 namespace JonasOchJohansMataffär
 {
@@ -791,7 +792,7 @@ namespace JonasOchJohansMataffär
 
         private void ProductManager_Click(object sender, RoutedEventArgs e)
         {
-            ProductManager.ManagerWindow window = new ProductManager.ManagerWindow();
+            ManagerWindow window = new ManagerWindow();
             window.Show();
         }
 
