@@ -327,6 +327,7 @@ namespace JonasOchJohansMataffär
                 CanUserResizeRows = false,
                 CanUserSortColumns = false
             };
+            grid.CellEditEnding += Grid_CellEditEnding;
             //Create datatable to store information to display on datagrid
             table = new DataTable();
             table.Columns.Add(new DataColumn
@@ -451,9 +452,9 @@ namespace JonasOchJohansMataffär
 
         public void Load()
         {
-            if (File.Exists(@"C:\Windows\Temp\JJSTORE\cart.txt"))
+            if (File.Exists(@"C:\Windows\Temp\JJSTORE\cart.csv"))
             {
-                List<string[]> lines = File.ReadLines(@"C:\Windows\Temp\JJSTORE\cart.txt").Select(a => a.Split(';')).ToList();
+                List<string[]> lines = File.ReadLines(@"C:\Windows\Temp\JJSTORE\cart.csv").Select(a => a.Split(';')).ToList();
                 foreach (var line in lines)
                 {
                     DataRow newRow = table.NewRow();
@@ -493,7 +494,7 @@ namespace JonasOchJohansMataffär
             UpdateTotals();
         }
 
-        private void GridForCart_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private void Grid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             if ("Amount" == e.Column.Header.ToString() || "Price" == e.Column.Header.ToString())
             {
@@ -526,6 +527,7 @@ namespace JonasOchJohansMataffär
             }
             UpdateTotals();
         }
+
     }
 
     public class Receipt
@@ -668,18 +670,18 @@ namespace JonasOchJohansMataffär
 
     public static class Utility
     {
-        public static void CartToCSV(this DataTable dtDataTable, string strFilePath)
+        public static void CartToCSV(this DataTable datatable, string filepath)
         {
-            StreamWriter sw = new StreamWriter(strFilePath, false);
-            foreach (DataRow row in dtDataTable.Rows)
+            StreamWriter sw = new StreamWriter(filepath, false);
+            foreach (DataRow row in datatable.Rows)
             {
-                for (int i = 0; i < dtDataTable.Columns.Count; i++)
+                for (int i = 0; i < datatable.Columns.Count; i++)
                 {
                     if (!Convert.IsDBNull(row[i]))
                     {
                         sw.Write(row[i].ToString());
                     }
-                    if (i < dtDataTable.Columns.Count - 1)
+                    if (i < datatable.Columns.Count - 1)
                     {
                         sw.Write(";");
                     }
@@ -836,7 +838,7 @@ namespace JonasOchJohansMataffär
         {
             if (myCart.table.Rows.Count > 0)
             {
-                myCart.table.CartToCSV(@"C:\Windows\Temp\JJSTORE\cart.txt");
+                myCart.table.CartToCSV(@"C:\Windows\Temp\JJSTORE\cart.csv");
             }
         }
 
