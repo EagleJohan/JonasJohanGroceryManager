@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProductManager;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -8,7 +9,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using ProductManager;
 
 namespace JonasOchJohansMataffär
 {
@@ -110,7 +110,7 @@ namespace JonasOchJohansMataffär
                 IsHitTestVisible = false,
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
-                 FontSize = 12,
+                FontSize = 12,
                 FontWeight = FontWeights.SemiBold
             };
             showArticleGrid.Children.Add(titleHeader);
@@ -135,7 +135,7 @@ namespace JonasOchJohansMataffär
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
                 Content = "Price:",
-                 FontSize = 15,
+                FontSize = 15,
                 FontWeight = FontWeights.Bold,
             };
             showArticleGrid.Children.Add(priceLabel);
@@ -417,7 +417,6 @@ namespace JonasOchJohansMataffär
                 FontSize = 18,
                 FontWeight = FontWeights.SemiBold,
                 VerticalAlignment = VerticalAlignment.Center,
-
             };
             grid.Children.Add(discountLabel);
             Grid.SetRow(discountLabel, 1);
@@ -465,7 +464,6 @@ namespace JonasOchJohansMataffär
                 FontSize = 15,
                 FontWeight = FontWeights.Bold,
                 Foreground = Brushes.Red
-              
             };
             clearAllCart.Click += delegate { table.Rows.Clear(); };
             grid.Children.Add(clearAllCart);
@@ -569,7 +567,6 @@ namespace JonasOchJohansMataffär
             }
             UpdateTotals();
         }
-
     }
 
     public class Receipt
@@ -758,6 +755,7 @@ namespace JonasOchJohansMataffär
 
         //File paths
         public string DiscountCodePath = @"C:\Windows\Temp\JJSTORE\Documents\DiscountCodes.csv";
+
         public string InventoryPath = @"C:\Windows\Temp\JJSTORE\Documents\Inventory.csv";
         public string PictureDirectoryPath = @"C:\Windows\Temp\JJSTORE\Pictures\";
 
@@ -765,11 +763,11 @@ namespace JonasOchJohansMataffär
 
         //Flytta ner
         public Store myStore = new Store();
+
         public Cart myCart = new Cart();
         public Receipt myReceipt = new Receipt();
 
-
-        ManagerWindow managerWindow = new ManagerWindow();
+        private ManagerWindow managerWindow = new ManagerWindow();
 
         public MainWindow()
         {
@@ -820,7 +818,6 @@ namespace JonasOchJohansMataffär
             storeGrid.Margin = new Thickness(5);
             myStore.addToCartButton.Click += AddToCartButton_Click;
             myStore.productManager.Click += ProductManager_Click;
-            managerWindow.Closed += (sender, e) => LoadLocalFiles();
 
             // Main cart grid
             cartGrid = myCart.CreateGrid();
@@ -846,6 +843,9 @@ namespace JonasOchJohansMataffär
 
         private void ProductManager_Click(object sender, RoutedEventArgs e)
         {
+            managerWindow = new ManagerWindow();
+            managerWindow.submitButton.Click += (sender, e) => LoadLocalFiles();
+            managerWindow.submitButton.Click += delegate { myStore.articleList.ItemsSource = products.Select(products => products.ArticleName); };
             managerWindow.Show();
         }
 
