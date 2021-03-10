@@ -846,6 +846,7 @@ namespace JonasOchJohansMataffär
             managerWindow = new ManagerWindow();
             managerWindow.submitButton.Click += (sender, e) => LoadLocalFiles();
             managerWindow.submitButton.Click += delegate { myStore.articleList.ItemsSource = products.Select(products => products.ArticleName); };
+            managerWindow.Closing += (sender, e) => LoadLocalFiles();
             managerWindow.Show();
         }
 
@@ -891,6 +892,7 @@ namespace JonasOchJohansMataffär
             {
                 myCart.table.CartToCSV(@"C:\Windows\Temp\JJSTORE\cart.csv");
             }
+            Application.Current.Shutdown();
         }
 
         public void AddToCartButton_Click(object sender, RoutedEventArgs e)
