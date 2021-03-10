@@ -17,6 +17,7 @@ namespace JonasOchJohansMataffär
     {
         //Variables
         public Image image;
+
         public ComboBox selection;
         public TextBlock title;
         public TextBlock description;
@@ -164,6 +165,7 @@ namespace JonasOchJohansMataffär
             };
             quantity.TextChanged += CheckForMinimumQuantity;
             quantity.GotFocus += SelectionStartQuantity;
+            quantity.LostFocus += CheckQuantity;
             addProductGrid.Children.Add(quantity);
             quantity.KeyDown += Integers_KeyDown;
             Grid.SetColumn(quantity, 1);
@@ -204,6 +206,14 @@ namespace JonasOchJohansMataffär
             addProductGrid.Children.Add(addProduct);
             Grid.SetColumn(addProduct, 3);
             return grid;
+        }
+
+        private void CheckQuantity(object sender, RoutedEventArgs e)
+        {
+            if (quantity.Text.Length == 0)
+            {
+                quantity.Text = "1";
+            }
         }
 
         //Event handler
@@ -278,6 +288,7 @@ namespace JonasOchJohansMataffär
     {
         //Varibles
         public DataColumn quantity;
+
         public DataColumn delete;
         public TextBox discountCode;
         public DataTable table;
@@ -352,7 +363,7 @@ namespace JonasOchJohansMataffär
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
             };
-            
+
             grid.CellEditEnding += Grid_CellEditEnding;
             //Create datatable to store information to display on datagrid
             table = new DataTable();
@@ -384,12 +395,13 @@ namespace JonasOchJohansMataffär
             grid.Loaded += Grid_Loaded;
             return grid;
         }
+
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
             dataGrid.Columns[0].Width = new DataGridLength(50, DataGridLengthUnitType.Star);
             dataGrid.Columns[1].Width = new DataGridLength(20, DataGridLengthUnitType.Star);
-            dataGrid.Columns[2].Width = new DataGridLength(20, DataGridLengthUnitType.Star);
-            dataGrid.Columns[3].Width = new DataGridLength(10, DataGridLengthUnitType.Star);
+            dataGrid.Columns[2].Width = new DataGridLength(15, DataGridLengthUnitType.Star);
+            dataGrid.Columns[3].Width = new DataGridLength(15, DataGridLengthUnitType.Star);
         }
 
         public Grid CreateCheckOut()
@@ -579,6 +591,8 @@ namespace JonasOchJohansMataffär
     public class Receipt
     {
         public Grid grid;
+        public Button pay;
+        public Button cancel;
 
         public Grid CreateGrid(DataTable table, List<string> usedCoupons, Dictionary<string, decimal> discountCodes)
         {
@@ -591,6 +605,7 @@ namespace JonasOchJohansMataffär
             string usedCouponsString = string.Join(", ", usedCoupons);
             grid = new Grid();
             grid.Margin = new Thickness(5);
+            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -662,6 +677,38 @@ namespace JonasOchJohansMataffär
 
             Label totalPriceDiscountLabel = CreateLabel($"{totalPrice - (totalPrice * totalDiscount):N2}kr", grid, 7, 1, 12);
             Grid.SetColumnSpan(totalPriceDiscountLabel, 3);
+
+            Label confirmPayment = new Label
+            {
+                Content = "Are you sure?",
+                Margin = new Thickness(5),
+                Padding = new Thickness(5),
+                FontWeight = FontWeights.SemiBold,
+                FontSize = 15
+            };
+            grid.Children.Add(confirmPayment);
+            Grid.SetRow(confirmPayment, 8);
+            Grid.SetColumnSpan(confirmPayment, 2);
+
+            pay = new Button
+            {
+                Content = "Pay",
+                Margin = new Thickness(5),
+                Padding = new Thickness(5)
+            };
+            grid.Children.Add(pay);
+            Grid.SetColumn(pay, 2);
+            Grid.SetRow(pay, 8);
+
+            cancel = new Button
+            {
+                Content = "Cancel",
+                Margin = new Thickness(5),
+                Padding = new Thickness(5)
+            };
+            grid.Children.Add(cancel);
+            Grid.SetColumn(cancel, 3);
+            Grid.SetRow(cancel, 8);
 
             return grid;
         }
@@ -830,6 +877,7 @@ namespace JonasOchJohansMataffär
             Grid.SetColumn(cartGrid, 1);
             cartGrid.Margin = new Thickness(5);
             myCart.pay.Click += PayButton_Click;
+
         }
 
         private void LoadLocalFiles()
@@ -929,18 +977,36 @@ namespace JonasOchJohansMataffär
 
         public void PayButton_Click(object sender, RoutedEventArgs e)
         {
-            receiptGrid = myReceipt.CreateGrid(myCart.table, myCart.usedDiscount, myCart.discountCoupons);
-
-            mainGrid.Children.Remove(cartGrid);
-            mainGrid.Children.Add(receiptGrid);
-            Grid.SetColumn(receiptGrid, 1);
-            if (MessageBox.Show("Confirm payment?", "Checkout", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (myCart.table.Rows.Count > 0)
             {
-                myCart.table.Clear();
-                myCart.UpdateTotals();
-                myCart.usedDiscount.Clear();
-                MessageBox.Show("Success", "Success", MessageBoxButton.OK);
+                receiptGrid = myReceipt.CreateGrid(myCart.table, myCart.usedDiscount, myCart.discountCoupons);
+
+                mainGrid.Children.Remove(cartGrid);
+                mainGrid.Children.Add(receiptGrid);
+                Grid.SetColumn(receiptGrid, 1);
+
+                myReceipt.pay.Click += SuccesfulPayment;
+                myReceipt.cancel.Click += AbortPayment;
             }
+            else
+            {
+                MessageBox.Show("Cart is empty");
+            }
+        }
+
+        private void AbortPayment(object sender, RoutedEventArgs e)
+        {
+            mainGrid.Children.Remove(receiptGrid);
+            mainGrid.Children.Add(cartGrid);
+            Grid.SetColumn(cartGrid, 1);
+        }
+
+        private void SuccesfulPayment(object sender, RoutedEventArgs e)
+        {
+            myCart.table.Clear();
+            myCart.UpdateTotals();
+            myCart.usedDiscount.Clear();
+            MessageBox.Show("Success", "Success", MessageBoxButton.OK);
             mainGrid.Children.Remove(receiptGrid);
             mainGrid.Children.Add(cartGrid);
             Grid.SetColumn(cartGrid, 1);
