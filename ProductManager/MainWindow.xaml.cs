@@ -53,7 +53,6 @@ namespace ProductManager
                 MaxHeight = 25,
                 VerticalContentAlignment = VerticalAlignment.Center,
                 HorizontalContentAlignment = HorizontalAlignment.Center
-
             };
             deleteDiscount.Click += DeleteDiscount;
             grid.Children.Add(deleteDiscount);
@@ -64,7 +63,7 @@ namespace ProductManager
             discountKeyLabel = new Label
             {
                 Content = "Code",
-                Margin = new Thickness(5, 5, 0 , 5 ),
+                Margin = new Thickness(5, 5, 0, 5),
                 FontWeight = FontWeights.Bold,
                 FontSize = 12,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -201,7 +200,6 @@ namespace ProductManager
             {
                 Orientation = Orientation.Vertical,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                
             };
             grid.Children.Add(stackPanel);
 
@@ -467,9 +465,9 @@ namespace ProductManager
             grid.Margin = new Thickness(5);
             grid.RowDefinitions.Add(new RowDefinition { MaxHeight = 50 });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(80, GridUnitType.Star)});
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(20, GridUnitType.Star)});
-            grid.ColumnDefinitions.Add(new ColumnDefinition ());
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(80, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(20, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
 
             Label title = new Label
             {

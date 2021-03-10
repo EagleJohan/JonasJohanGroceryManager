@@ -877,7 +877,6 @@ namespace JonasOchJohansMataffär
             Grid.SetColumn(cartGrid, 1);
             cartGrid.Margin = new Thickness(5);
             myCart.pay.Click += PayButton_Click;
-
         }
 
         private void LoadLocalFiles()
