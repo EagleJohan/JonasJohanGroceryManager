@@ -1162,11 +1162,16 @@ namespace JonasOchJohansMataffär
 
                 myReceipt.pay.Click += SuccesfulPayment;
                 myReceipt.cancel.Click += AbortPayment;
+
+
+                //Disables add to cart button while receipt is showing
+                myStore.addProduct.IsEnabled = false;
             }
             else
             {
                 MessageBox.Show("Cart is empty");
             }
+
         }
 
         /// <summary>
@@ -1179,6 +1184,8 @@ namespace JonasOchJohansMataffär
             mainGrid.Children.Remove(receiptGrid);
             mainGrid.Children.Add(cartGrid);
             Grid.SetColumn(cartGrid, 1);
+            //turns the add to cart button on again
+            myStore.addProduct.IsEnabled = true;
         }
 
         /// <summary>
@@ -1195,6 +1202,9 @@ namespace JonasOchJohansMataffär
             mainGrid.Children.Remove(receiptGrid);
             mainGrid.Children.Add(cartGrid);
             Grid.SetColumn(cartGrid, 1);
+
+            //turns the add to cart button on again
+            myStore.addProduct.IsEnabled = true;
         }
     }
 }
