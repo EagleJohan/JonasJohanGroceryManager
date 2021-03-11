@@ -8,6 +8,9 @@ using System.Windows.Input;
 
 namespace ProductManager
 {
+    /// <summary>
+    /// Class for handling variables, methods and event related to discount code managing
+    /// </summary>
     public class Discount
     {
         public Label discountKeyLabel;
@@ -175,6 +178,9 @@ namespace ProductManager
         }
     }
 
+    /// <summary>
+    /// Class for handling variables, methods and event related to adding inventory
+    /// </summary>
     public class ItemAdd
     {
         public TextBox name;
@@ -342,6 +348,9 @@ namespace ProductManager
         }
     }
 
+    /// <summary>
+    /// Class for handling variables, methods and event related to removing inventory
+    /// </summary>
     public class ItemRemove
     {
         public ListBox productList;
@@ -423,6 +432,7 @@ namespace ProductManager
 
     public partial class ManagerWindow : Window
     {
+        //Variables
         public Grid grid;
 
         private ComboBox manageSelection;
@@ -492,6 +502,7 @@ namespace ProductManager
             grid.Children.Add(manageSelection);
             Grid.SetRow(manageSelection, 1);
 
+            //When clicked new product is added and lists updated
             submit = new Button
             {
                 Content = "Submit",
@@ -509,6 +520,11 @@ namespace ProductManager
             Grid.SetRow(submit, 3);
         }
 
+        /// <summary>
+        /// Switches grid depending on users choice
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ManageSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             grid.Children.Remove(addGrid);
@@ -536,10 +552,16 @@ namespace ProductManager
             }
         }
 
+        /// <summary>
+        /// Handles different cases for submit button depending on which grid is in view.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CreateProduct(object sender, RoutedEventArgs e)
         {
             switch (manageSelection.SelectedIndex)
             {
+                //If add product grid is up. Adds product to inventory. Checks for duplicates and if all fields have information. 
                 case 0:
                     bool isName = itemAdd.name.Text.Length > 0;
                     bool isDescription = itemAdd.description.Text.Length > 0;
@@ -567,10 +589,12 @@ namespace ProductManager
                     itemAdd.imageURL = "";
                     break;
 
+                    //If delete product grid is up.
                 case 1:
                     MessageBox.Show("There's nothing to submit!");
                     break;
 
+                    //If discount grid is up. Checks for duplicates, adds new codes.
                 case 2:
                     string key = discount.discountKeyBox.Text.ToLower();
                     decimal value = decimal.Parse(discount.discountValueBox.Text) / 100;
@@ -588,6 +612,7 @@ namespace ProductManager
                     discount.discountValueBox.Text = "";
                     break;
 
+                    //If start grid is up
                 default:
                     MessageBox.Show("Please select an option!");
                     break;

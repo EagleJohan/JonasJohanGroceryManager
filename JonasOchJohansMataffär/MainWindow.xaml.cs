@@ -12,7 +12,9 @@ using System.Windows.Media.Imaging;
 
 namespace JonasOchJohansMataffär
 {
-    //Class for handling methods and variables related to the Store
+    /// <summary>
+    /// Class for handling methods, events and variables related to the Cart
+    /// </summary>
     public class Store
     {
         //Variables
@@ -29,6 +31,11 @@ namespace JonasOchJohansMataffär
         public List<Product> products = new List<Product>();
 
         //Methods
+
+        /// <summary>
+        /// Creates grid for the store
+        /// </summary>
+        /// <returns></returns>
         public Grid CreateGrid()
         {
             Grid grid = new Grid();
@@ -55,7 +62,7 @@ namespace JonasOchJohansMataffär
             };
             grid.Children.Add(wrapPanel);
             Grid.SetRow(wrapPanel, 1);
-
+            //Start image, before any product has been chosen
             image = new Image
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -64,7 +71,7 @@ namespace JonasOchJohansMataffär
                 Stretch = Stretch.UniformToFill,
                 Width = 250,
                 Height = 250,
-                Source = Utility.ReadImage(@"C:\Windows\Temp\JJSTORE\Pictures\Placeholder.jpg")
+                Source = Utility.ReadImage(@"Pictures\Placeholder2.png")
             };
             wrapPanel.Children.Add(image);
 
@@ -208,6 +215,13 @@ namespace JonasOchJohansMataffär
             return grid;
         }
 
+        //Events
+
+        /// <summary>
+        /// Makes sure quantity textbox is never empty
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CheckQuantity(object sender, RoutedEventArgs e)
         {
             if (quantity.Text.Length == 0)
@@ -216,7 +230,11 @@ namespace JonasOchJohansMataffär
             }
         }
 
-        //Event handler
+        /// <summary>
+        /// Displays correct information and image when user chooses product in combobox
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ArticleList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             image.Source = Utility.ReadImage(@"C:\Windows\Temp\JJSTORE\Pictures\" + products[selection.SelectedIndex].ImagePath);
@@ -225,19 +243,32 @@ namespace JonasOchJohansMataffär
             addProduct.IsEnabled = true;
         }
 
+        /// <summary>
+        /// Removes header when articlelist combobox is opened
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ArticleList_DropDownOpened(object sender, EventArgs e)
         {
             title.Text = "";
         }
 
-        //event handlers
-
+        /// <summary>
+        /// Checks quantity textbox for ???
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SelectionStartQuantity(object sender, RoutedEventArgs e)
         {
             quantity.SelectionStart = quantity.Text.Length;
             quantity.SelectionLength = 0;
         }
 
+        /// <summary>
+        /// Sets value in quantity textbox to 1 if the value is lower
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CheckForMinimumQuantity(object sender, TextChangedEventArgs e)
         {
             int.TryParse(quantity.Text, out int currentQuantity);
@@ -247,6 +278,11 @@ namespace JonasOchJohansMataffär
             }
         }
 
+        /// <summary>
+        /// Increases value in quantity textbox by 1
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void IncreaseQuantity_Click(object sender, RoutedEventArgs e)
         {
             int.TryParse(quantity.Text, out int currentQuantity);
@@ -254,6 +290,11 @@ namespace JonasOchJohansMataffär
             quantity.Text = currentQuantity.ToString();
         }
 
+        /// <summary>
+        /// Decreases value in quantity textbox by 1 but never to 0
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DecreaseQuantity_Click(object sender, RoutedEventArgs e)
         {
             int.TryParse(quantity.Text, out int currentQuantity);
@@ -268,6 +309,11 @@ namespace JonasOchJohansMataffär
             }
         }
 
+        /// <summary>
+        /// Does not allow user to enter anyother key but numbers
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Integers_KeyDown(object sender, KeyEventArgs e)
         {
             var digitkeys = e.Key >= Key.D0 && e.Key <= Key.D9;
@@ -284,6 +330,9 @@ namespace JonasOchJohansMataffär
         }
     }
 
+    /// <summary>
+    /// Class for handling methods, events and variables related to the Cart
+    /// </summary>
     public class Cart
     {
         //Varibles
@@ -303,6 +352,13 @@ namespace JonasOchJohansMataffär
         public Button pay;
 
         //Methods
+
+        /// <summary>
+        /// Reads and adds all avaiable discount codes to a list
+        /// </summary>
+        /// <param name="discountCodes"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         public Dictionary<string, decimal> ReadDiscountCodes(Dictionary<string, decimal> discountCodes, string filePath)
         {
             var lines = File.ReadLines(filePath).Select(a => a.Split(';')).ToList();
@@ -313,6 +369,11 @@ namespace JonasOchJohansMataffär
             return discountCodes;
         }
 
+
+        /// <summary>
+        /// Creates the main cart grid
+        /// </summary>
+        /// <returns></returns>
         public Grid CreateGrid()
         {
             //Creates main grid
@@ -348,6 +409,10 @@ namespace JonasOchJohansMataffär
             return grid;
         }
 
+        /// <summary>
+        /// Creates the datagrid and table where added products are shown
+        /// </summary>
+        /// <returns></returns>
         public DataGrid CreateDataGrid()
         {
             //Creates DataGrid to display cart
@@ -396,6 +461,11 @@ namespace JonasOchJohansMataffär
             return grid;
         }
 
+        /// <summary>
+        /// Sets width of the datatable rows using proportions
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
             dataGrid.Columns[0].Width = new DataGridLength(50, DataGridLengthUnitType.Star);
@@ -404,6 +474,10 @@ namespace JonasOchJohansMataffär
             dataGrid.Columns[3].Width = new DataGridLength(15, DataGridLengthUnitType.Star);
         }
 
+        /// <summary>
+        /// Creates the grid containing discounts and checkoutbuttons
+        /// </summary>
+        /// <returns></returns>
         public Grid CreateCheckOut()
         {
             Grid grid = new Grid();
@@ -427,7 +501,6 @@ namespace JonasOchJohansMataffär
             grid.Children.Add(totals);
             Grid.SetColumnSpan(totals, 5);
 
-            //
             //discount label
             Label coupon = new Label
             {
@@ -461,6 +534,7 @@ namespace JonasOchJohansMataffär
             addDiscountCode.Click += AddDiscountCode;
             Grid.SetColumn(addDiscountCode, 2);
             Grid.SetRow(addDiscountCode, 1);
+
             // Print receipt and pay for cart
             pay = new Button
             {
@@ -474,7 +548,8 @@ namespace JonasOchJohansMataffär
             grid.Children.Add(pay);
             Grid.SetColumn(pay, 3);
             Grid.SetRow(pay, 1);
-            //Clear all
+
+            //Clear the whole cart
             Button clear = new Button
             {
                 Content = "Clear Cart",
@@ -491,6 +566,9 @@ namespace JonasOchJohansMataffär
             return grid;
         }
 
+        /// <summary>
+        /// Calculates as total sum for price and quantity by adding all rows in table
+        /// </summary>
         public void UpdateTotals()
         {
             totalQuantity = 0;
@@ -509,10 +587,14 @@ namespace JonasOchJohansMataffär
                                  $"Total price after discount coupons: {totalPrice * (1 - totalDiscount):N2}kr";
         }
 
+        /// <summary>
+        /// Loads the last cart used (if there is one) if the user chooses that option at the start of the programm
+        /// </summary>
         public void Load()
         {
             if (File.Exists(@"C:\Windows\Temp\JJSTORE\cart.csv"))
             {
+                //populates table with saved cart data
                 List<string[]> lines = File.ReadLines(@"C:\Windows\Temp\JJSTORE\cart.csv").Select(a => a.Split(';')).ToList();
                 foreach (var line in lines)
                 {
@@ -532,6 +614,12 @@ namespace JonasOchJohansMataffär
         }
 
         //Event handlers
+
+        /// <summary>
+        /// Checks entered discountcode for validation
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void AddDiscountCode(object sender, RoutedEventArgs e)
         {
             string inputDiscount = discountCode.Text.ToLower();
@@ -553,13 +641,18 @@ namespace JonasOchJohansMataffär
             UpdateTotals();
         }
 
+        /// <summary>
+        /// Lets user change quantity in cart(table) and corrects price accordingly. Also stops user from tampering with price.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Grid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             if ("Qty" == e.Column.Header.ToString() || "Price" == e.Column.Header.ToString())
             {
                 totalQuantity = 0;
                 totalPrice = 0;
-                //Kollar så priset matchar produktpriset och om isDeleted är incheckat
+                //Check if the price matches productprice and if checkbox isDeleted is checked
                 foreach (var row in table.AsEnumerable())
                 {
                     int correctQuantity = int.Parse(row[2].ToString());
@@ -588,21 +681,35 @@ namespace JonasOchJohansMataffär
         }
     }
 
+    /// <summary>
+    /// Class for handling methods, events and variables related to the Receipt
+    /// </summary>
     public class Receipt
     {
+        //Variables
         public Grid grid;
         public Button pay;
         public Button cancel;
 
+        /// <summary>
+        /// Creates  main grid for receipt
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="usedCoupons"></param>
+        /// <param name="discountCodes"></param>
+        /// <returns></returns>
         public Grid CreateGrid(DataTable table, List<string> usedCoupons, Dictionary<string, decimal> discountCodes)
         {
             decimal totalPrice = 0;
             decimal totalDiscount = 0;
+            //Checks which coupons have been used
             foreach (string coupon in usedCoupons)
             {
                 totalDiscount += discountCodes[coupon];
             }
             string usedCouponsString = string.Join(", ", usedCoupons);
+
+            //Receipt main grid
             grid = new Grid();
             grid.Margin = new Thickness(5);
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -641,7 +748,7 @@ namespace JonasOchJohansMataffär
             Grid.SetRow(receiptPanel, 2);
             Grid.SetColumn(receiptPanel, 0);
             Grid.SetColumnSpan(receiptPanel, 4);
-            //Lägg in produkterna med en foreach och ett nytt grid.
+            //Adds every product in cart to its own grid which is then added to a stackpanel in main grid
             foreach (DataRow row in table.AsEnumerable())
             {
                 receiptPanel.Children.Add(CreateReceiptObjekt(row));
@@ -651,15 +758,12 @@ namespace JonasOchJohansMataffär
             Label divider = CreateLabel("======================================================", grid, 3, 0, 12);
             Grid.SetColumnSpan(divider, 4);
 
-            //Label discountCodeLabel = CreataReceiptLabel("Code: ", grid, 4, 0,  12);
             Grid.SetColumnSpan(CreateLabel("Code: ", grid, 4, 0, 12), 2);
 
-            //Label usedCodeLabel = CreataReceiptLabel("Code", grid, 4, 1,  12);
             Grid.SetColumnSpan(CreateLabel(usedCouponsString, grid, 4, 1, 12), 2);
 
             CreateBackgroundColor(grid, 5, 4);
 
-            //Label SumBeforeDiscountLabel = CreataReceiptLabel("SUM: ", grid, 5, 0,  12);
             Grid.SetColumnSpan(CreateLabel("Total price:", grid, 5, 0, 12), 2);
 
             Label totalPriceLabel = CreateLabel($"{totalPrice:N2}kr", grid, 5, 1, 12);
@@ -713,6 +817,15 @@ namespace JonasOchJohansMataffär
             return grid;
         }
 
+        /// <summary>
+        /// Template for similar labels
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="grid"></param>
+        /// <param name="row"></param>
+        /// <param name="column"></param>
+        /// <param name="fontsize"></param>
+        /// <returns></returns>
         private Label CreateLabel(string content, Grid grid, int row, int column, int fontsize)
         {
             Label label = new Label
@@ -730,6 +843,12 @@ namespace JonasOchJohansMataffär
             return label;
         }
 
+        /// <summary>
+        /// Adds background color to labels made from template
+        /// </summary>
+        /// <param name="grid"></param>
+        /// <param name="row"></param>
+        /// <param name="column"></param>
         private void CreateBackgroundColor(Grid grid, int row, int column)
         {
             Label backgroundColour = new Label
@@ -741,7 +860,11 @@ namespace JonasOchJohansMataffär
             Grid.SetColumnSpan(backgroundColour, column);
         }
 
-        //Denna metod ska användas för att bygga ett grid till varje produkt i cart.
+       /// <summary>
+       /// Creates a grid for each product in cart
+       /// </summary>
+       /// <param name="row"></param>
+       /// <returns></returns>
         private Grid CreateReceiptObjekt(DataRow row)
         {
             Grid productGrid = new Grid();
@@ -761,8 +884,16 @@ namespace JonasOchJohansMataffär
         }
     }
 
+    /// <summary>
+    /// Class for handling methods, events and variables related to the IO-actions
+    /// </summary>
     public static class Utility
     {
+        /// <summary>
+        /// Writes current cart to Temp when program is closed
+        /// </summary>
+        /// <param name="datatable"></param>
+        /// <param name="filepath"></param>
         public static void CartToCSV(this DataTable datatable, string filepath)
         {
             StreamWriter sw = new StreamWriter(filepath, false);
@@ -784,7 +915,11 @@ namespace JonasOchJohansMataffär
             sw.Close();
         }
 
-        //FLYTTA OCH FIXA
+        /// <summary>
+        /// Creates an image source
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         public static ImageSource ReadImage(string fileName)
         {
             ImageSource source = new BitmapImage(new Uri(fileName, UriKind.RelativeOrAbsolute));
@@ -792,6 +927,9 @@ namespace JonasOchJohansMataffär
         }
     }
 
+    /// <summary>
+    /// Class for creating products
+    /// </summary>
     public class Product
     {
         public string ArticleName { get; set; }
@@ -802,31 +940,33 @@ namespace JonasOchJohansMataffär
 
     public partial class MainWindow : Window
     {
+        //Grids for all sections
         public Grid mainGrid;
         public Grid storeGrid;
         public Grid cartGrid;
         public Grid receiptGrid;
 
-        //File paths
+        //File paths to Temp
         public string discountCodePath = @"C:\Windows\Temp\JJSTORE\Documents\DiscountCodes.csv";
-
         public string inventoryPath = @"C:\Windows\Temp\JJSTORE\Documents\Inventory.csv";
         public string pictureDirectoryPath = @"C:\Windows\Temp\JJSTORE\Pictures\";
 
         public List<Product> products = new List<Product>();
 
+        //Instance variables - classes
         public Store myStore = new Store();
         public Cart myCart = new Cart();
         public Receipt myReceipt = new Receipt();
-
+        //Instance variables - projects
         private ManagerWindow managerWindow = new ManagerWindow();
 
         public MainWindow()
         {
             InitializeComponent();
             Start();
+            //Saves the current cart when app is closed automatically
             Closed += MainWindow_Closed;
-            //Flytta
+            //Loads the last cart if the user wishes it, and if there is one
             if (MessageBox.Show("Would you like to continue on your last cart?", "Cart", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 myCart.Load();
@@ -879,41 +1019,55 @@ namespace JonasOchJohansMataffär
             myCart.pay.Click += PayButton_Click;
         }
 
+        /// <summary>
+        /// Loads and updates inventory and discount codes from Temp, clears first to avoid duplicates
+        /// </summary>
         private void LoadLocalFiles()
         {
-            //Read Cart and business offerings
+            //Reads offerings 
             products.Clear();
             ReadOfferings(File.ReadLines(inventoryPath).Select(a => a.Split(';')).ToList(), products);
             myCart.products.Clear();
             ReadOfferings(File.ReadLines(inventoryPath).Select(a => a.Split(';')).ToList(), myCart.products);
             myStore.products.Clear();
             ReadOfferings(File.ReadLines(inventoryPath).Select(a => a.Split(';')).ToList(), myStore.products);
+            //Reads discountcodes
             myCart.discountCoupons.Clear();
             myCart.usedDiscount.Clear();
             myCart.ReadDiscountCodes(myCart.discountCoupons, discountCodePath);
         }
 
+        /// <summary>
+        /// Opens managerwindow, updates files both at submitbuttonclick and at closing
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ProductManager_Click(object sender, RoutedEventArgs e)
         {
             managerWindow = new ManagerWindow();
             managerWindow.submit.Click += (sender, e) => LoadLocalFiles();
             managerWindow.submit.Click += delegate { myStore.selection.ItemsSource = products.Select(products => products.ArticleName); };
             managerWindow.Closing += (sender, e) => LoadLocalFiles();
+            managerWindow.Closing += delegate { myStore.selection.ItemsSource = products.Select(products => products.ArticleName); };
             managerWindow.Show();
         }
 
+        /// <summary>
+        /// Creates directory in Temp and copies files from solution
+        /// </summary>
         private void LocatePaths()
         {
+            //If file exists do nothing
             if (!File.Exists(@"C:\Windows\Temp\JJSTORE\Documents\Inventory.csv"))
             {
-                //Läser in dokument från projektet och skriver över till en lokal destination
+                //Reads document from project and copies to local destination
                 var documentFiles = Directory.GetFiles(@"Documents\");
                 Directory.CreateDirectory(@"C:\Windows\Temp\JJSTORE\Documents");
                 foreach (var file in documentFiles)
                 {
                     File.Copy(file, @"C:\Windows\Temp\JJSTORE\" + file);
                 }
-                //Läser in bilder från projektet och skriver över till en lokal destination
+                //Reads images from project and copies to local destination
                 var imageFiles = Directory.GetFiles(@"Pictures\");
                 Directory.CreateDirectory(@"C:\Windows\Temp\JJSTORE\Pictures");
                 foreach (var file in imageFiles)
@@ -923,6 +1077,11 @@ namespace JonasOchJohansMataffär
             }
         }
 
+        /// <summary>
+        /// Creates list of products
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="products"></param>
         private void ReadOfferings(List<string[]> file, List<Product> products)
         {
             foreach (var line in file)
@@ -938,6 +1097,11 @@ namespace JonasOchJohansMataffär
             }
         }
 
+        /// <summary>
+        /// Saves current cart, makes sure the whole program closes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainWindow_Closed(object sender, EventArgs e)
         {
             if (myCart.table.Rows.Count > 0)
@@ -947,6 +1111,11 @@ namespace JonasOchJohansMataffär
             Application.Current.Shutdown();
         }
 
+        /// <summary>
+        /// Creates new row in datatable and adds data from selected product
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void AddToCartButton_Click(object sender, RoutedEventArgs e)
         {
             for (int i = 0; i < int.Parse(myStore.quantity.Text); i++)
@@ -963,7 +1132,7 @@ namespace JonasOchJohansMataffär
                 }
                 else
                 {
-                    //Söker och tar fram raden som matchar artikelnamnet, använder first eftersom vi utgår från att det enbart finns en av de namnet och vi vill enbart ha en rad att arbeta med.
+                    //Locates the datatablerow that matches the articlename. Using first on assumption that there is only one instance of that particular name and we only want one row to work with.
                     DataRow result = myCart.table.Select().Where(row => row.Field<string>("Article Name") == products[myStore.selection.SelectedIndex].ArticleName).First();
                     int newQuantity = int.Parse(result[2].ToString()) + 1;
                     result[2] = newQuantity;
@@ -971,11 +1140,18 @@ namespace JonasOchJohansMataffär
                 }
             }
             myCart.UpdateTotals();
+            //Changes quantity back to 1
             myStore.quantity.Text = "1";
         }
 
+        /// <summary>
+        /// If there are products in cart; removes cartgrid and replaces with receiptgrid
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void PayButton_Click(object sender, RoutedEventArgs e)
         {
+            //Check if there are rows in datatable (products in cart)
             if (myCart.table.Rows.Count > 0)
             {
                 receiptGrid = myReceipt.CreateGrid(myCart.table, myCart.usedDiscount, myCart.discountCoupons);
@@ -993,6 +1169,11 @@ namespace JonasOchJohansMataffär
             }
         }
 
+        /// <summary>
+        /// Removes receiptgrid and brings back the cartgrid with the current cart
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AbortPayment(object sender, RoutedEventArgs e)
         {
             mainGrid.Children.Remove(receiptGrid);
@@ -1000,6 +1181,11 @@ namespace JonasOchJohansMataffär
             Grid.SetColumn(cartGrid, 1);
         }
 
+        /// <summary>
+        /// Clears cart, resets discounts and removes receiptgrid and brings back the cartgrid with an empty cart
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SuccesfulPayment(object sender, RoutedEventArgs e)
         {
             myCart.table.Clear();
