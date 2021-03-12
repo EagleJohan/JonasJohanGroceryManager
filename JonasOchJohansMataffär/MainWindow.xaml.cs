@@ -12,16 +12,12 @@ using System.Windows.Media.Imaging;
 
 namespace JonasOchJohansMataffär
 {
-    /// <summary>
-    /// Class for handling methods, events and variables related to the Cart
-    /// </summary>
     public class Store
     {
         //Variables
         public Image image;
-
         public ComboBox selection;
-        public TextBlock title;
+        public TextBlock header;
         public TextBlock description;
         public TextBox quantity;
         public Label price;
@@ -29,8 +25,6 @@ namespace JonasOchJohansMataffär
         public Button showProductManager;
 
         public List<Product> products = new List<Product>();
-
-        //Methods
 
         /// <summary>
         /// Creates grid for the store
@@ -62,7 +56,7 @@ namespace JonasOchJohansMataffär
             };
             grid.Children.Add(wrapPanel);
             Grid.SetRow(wrapPanel, 1);
-            //Start image, before any product has been chosen
+            //Source image is a placeholder and changes with selection change
             image = new Image
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -71,7 +65,7 @@ namespace JonasOchJohansMataffär
                 Stretch = Stretch.UniformToFill,
                 Width = 250,
                 Height = 250,
-                Source = Utility.ReadImage(@"Pictures\Placeholder2.png")
+                Source = Utility.ReadImage(@"Pictures\Placeholder.png")
             };
             wrapPanel.Children.Add(image);
 
@@ -113,16 +107,16 @@ namespace JonasOchJohansMataffär
             articleGrid.Children.Add(selection);
 
             //Header over article list
-            title = new TextBlock
+            header = new TextBlock
             {
-                Text = "Article",
+                Text = "Articles",
                 IsHitTestVisible = false,
                 Margin = new Thickness(5),
                 Padding = new Thickness(5),
                 FontSize = 12,
                 FontWeight = FontWeights.SemiBold
             };
-            articleGrid.Children.Add(title);
+            articleGrid.Children.Add(header);
 
             //Label to describe the chosen article
             description = new TextBlock
@@ -215,8 +209,6 @@ namespace JonasOchJohansMataffär
             return grid;
         }
 
-        //Events
-
         /// <summary>
         /// Makes sure quantity textbox is never empty
         /// </summary>
@@ -250,7 +242,7 @@ namespace JonasOchJohansMataffär
         /// <param name="e"></param>
         private void ArticleList_DropDownOpened(object sender, EventArgs e)
         {
-            title.Text = "";
+            header.Text = "";
         }
 
         /// <summary>
@@ -291,7 +283,7 @@ namespace JonasOchJohansMataffär
         }
 
         /// <summary>
-        /// Decreases value in quantity textbox by 1 but never to 0
+        /// Decreases value in quantity textbox by 1 but never less
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -310,7 +302,7 @@ namespace JonasOchJohansMataffär
         }
 
         /// <summary>
-        /// Does not allow user to enter anyother key but numbers
+        /// Does not allow user to enter anyother key but digits
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -329,15 +321,10 @@ namespace JonasOchJohansMataffär
             }
         }
     }
-
-    /// <summary>
-    /// Class for handling methods, events and variables related to the Cart
-    /// </summary>
     public class Cart
     {
         //Varibles
         public DataColumn quantity;
-
         public DataColumn delete;
         public TextBox discountCode;
         public DataTable table;
@@ -368,7 +355,6 @@ namespace JonasOchJohansMataffär
             }
             return discountCodes;
         }
-
 
         /// <summary>
         /// Creates the main cart grid
@@ -567,7 +553,7 @@ namespace JonasOchJohansMataffär
         }
 
         /// <summary>
-        /// Calculates as total sum for price and quantity by adding all rows in table
+        /// Calculates as total sum for price and quantity by adding all rows in table and updates labels
         /// </summary>
         public void UpdateTotals()
         {
@@ -588,7 +574,7 @@ namespace JonasOchJohansMataffär
         }
 
         /// <summary>
-        /// Loads the last cart used (if there is one) if the user chooses that option at the start of the programm
+        /// Loads the last cart used (if there is one) if the user chooses that option at the start of the program
         /// </summary>
         public void Load()
         {
@@ -680,10 +666,6 @@ namespace JonasOchJohansMataffär
             UpdateTotals();
         }
     }
-
-    /// <summary>
-    /// Class for handling methods, events and variables related to the Receipt
-    /// </summary>
     public class Receipt
     {
         //Variables
@@ -731,13 +713,13 @@ namespace JonasOchJohansMataffär
 
             CreateBackgroundColor(grid, 1, 4);
 
-            Label productNameLabel = CreateLabel("NAME", grid, 1, 0, 12);
+            CreateLabel("NAME", grid, 1, 0, 12);
 
-            Label quantityLabel = CreateLabel("QTY", grid, 1, 1, 12);
+            CreateLabel("QTY", grid, 1, 1, 12);
 
-            Label priceEachLabel = CreateLabel("EACH", grid, 1, 2, 12);
+            CreateLabel("EACH", grid, 1, 2, 12);
 
-            Label totalProductPriceLabel = CreateLabel("TOTAL", grid, 1, 3, 12);
+            CreateLabel("TOTAL", grid, 1, 3, 12);
 
             StackPanel receiptPanel = new StackPanel
             {
@@ -860,11 +842,11 @@ namespace JonasOchJohansMataffär
             Grid.SetColumnSpan(backgroundColour, column);
         }
 
-       /// <summary>
-       /// Creates a grid for each product in cart
-       /// </summary>
-       /// <param name="row"></param>
-       /// <returns></returns>
+        /// <summary>
+        /// Creates a grid for each product in cart
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
         private Grid CreateReceiptObjekt(DataRow row)
         {
             Grid productGrid = new Grid();
@@ -883,14 +865,10 @@ namespace JonasOchJohansMataffär
             return productGrid;
         }
     }
-
-    /// <summary>
-    /// Class for handling methods, events and variables related to the IO-actions
-    /// </summary>
     public static class Utility
     {
         /// <summary>
-        /// Writes current cart to Temp when program is closed
+        /// Writes current cart to filePath when program is closed
         /// </summary>
         /// <param name="datatable"></param>
         /// <param name="filepath"></param>
@@ -957,6 +935,7 @@ namespace JonasOchJohansMataffär
         public Store myStore = new Store();
         public Cart myCart = new Cart();
         public Receipt myReceipt = new Receipt();
+
         //Instance variables - projects
         private ManagerWindow managerWindow = new ManagerWindow();
 
@@ -980,7 +959,7 @@ namespace JonasOchJohansMataffär
             LocatePaths();
             LoadLocalFiles();
             // Window options
-            Title = "Generic Store AB";
+            Title = "Jonas och Johan AB";
             SizeToContent = SizeToContent.Height;
             Width = 1000;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -1024,7 +1003,7 @@ namespace JonasOchJohansMataffär
         /// </summary>
         private void LoadLocalFiles()
         {
-            //Reads offerings 
+            //Reads offerings
             products.Clear();
             ReadOfferings(File.ReadLines(inventoryPath).Select(a => a.Split(';')).ToList(), products);
             myCart.products.Clear();
@@ -1163,7 +1142,6 @@ namespace JonasOchJohansMataffär
                 myReceipt.pay.Click += SuccesfulPayment;
                 myReceipt.cancel.Click += AbortPayment;
 
-
                 //Disables add to cart button while receipt is showing
                 myStore.addProduct.IsEnabled = false;
             }
@@ -1171,7 +1149,6 @@ namespace JonasOchJohansMataffär
             {
                 MessageBox.Show("Cart is empty");
             }
-
         }
 
         /// <summary>

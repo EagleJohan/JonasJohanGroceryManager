@@ -8,23 +8,18 @@ using System.Windows.Input;
 
 namespace ProductManager
 {
-    /// <summary>
-    /// Class for handling variables, methods and event related to discount code managing
-    /// </summary>
     public class Discount
     {
         //Variables
         public Label discountKeyLabel;
 
         public TextBox discountKeyBox;
-
         public Label discountValueLabel;
-
         public TextBox discountValueBox;
-
         public ListBox discountCodeList;
 
         public Dictionary<string, decimal> discountCodes = new Dictionary<string, decimal>();
+
         public string filePath = @"C:\Windows\Temp\JJSTORE\Documents\DiscountCodes.csv";
 
         /// <summary>
@@ -127,7 +122,7 @@ namespace ProductManager
         }
 
         /// <summary>
-        /// Deletes seleted code
+        /// Deletes selected code
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -145,7 +140,7 @@ namespace ProductManager
         }
 
         /// <summary>
-        /// Reads all existing codes from Temp and add to a list
+        /// Reads all existing codes from Temp and add to a dictionary
         /// </summary>
         /// <param name="filePath"></param>
         public void ReadDiscountCodes(string filePath)
@@ -159,7 +154,7 @@ namespace ProductManager
         }
 
         /// <summary>
-        /// Clears list box to avoid duplicates then updates with latest list
+        /// Clears listbox to avoid duplicates then updates with latest list
         /// </summary>
         public void UpdateListBox()
         {
@@ -171,7 +166,7 @@ namespace ProductManager
         }
 
         /// <summary>
-        /// Stops user from anything but numbers in  code value textbox
+        /// Method for only handling digits and comma keys
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -196,7 +191,6 @@ namespace ProductManager
         /// <param name="filePath"></param>
         public void UpdateCSVFile(string filePath)
         {
-            
             StreamWriter sw = new StreamWriter(filePath, false);
             foreach (var code in discountCodes)
             {
@@ -206,22 +200,15 @@ namespace ProductManager
         }
     }
 
-    /// <summary>
-    /// Class for handling variables, methods and event related to adding inventory
-    /// </summary>
     public class ItemAdd
     {
         ///Variables
         public TextBox name;
 
         public TextBox description;
-
         public TextBox price;
-
         public Button imageSelect;
-
         public Label imageURLLabel;
-
         public string imageURL;
 
         public List<string> currentProducts = new List<string>();
@@ -231,7 +218,6 @@ namespace ProductManager
         /// <summary>
         /// Creates and shows add product grid
         /// </summary>
-        /// <returns></returns>
         public Grid ShowItemAdd()
         {
             Grid grid = new Grid();
@@ -336,7 +322,7 @@ namespace ProductManager
                 VerticalContentAlignment = VerticalAlignment.Center,
                 HorizontalContentAlignment = HorizontalAlignment.Center
             };
-           //Lets user search for an image locally
+            //Lets user search for an image locally
             imageSelect.Click += OpenDialog;
             stackPanel.Children.Add(imageSelect);
 
@@ -346,10 +332,9 @@ namespace ProductManager
         }
 
         /// <summary>
-        /// Reads inventory list from Temp
+        /// Reads inventory list from file
         /// </summary>
         /// <param name="file"></param>
-        /// <returns></returns>
         public List<string> ReadInventory(List<string[]> file)
         {
             List<string> products = new List<string>();
@@ -362,7 +347,7 @@ namespace ProductManager
         }
 
         /// <summary>
-        /// Stops user from anything but numbers in price textbox
+        /// Method for only handling digits and comma keys
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -397,13 +382,11 @@ namespace ProductManager
         }
     }
 
-    /// <summary>
-    /// Class for handling variables, methods and event related to removing inventory
-    /// </summary>
     public class ItemRemove
     {
         //Variables
         public ListBox productList;
+
         public string filePath = @"C:\Windows\Temp\JJSTORE\Documents\Inventory.csv";
         public List<string[]> file;
 
@@ -627,7 +610,7 @@ namespace ProductManager
         {
             switch (manageSelection.SelectedIndex)
             {
-                //If add product grid is up. Adds product to inventory. Checks for duplicates and if all fields have information. 
+                //If add product grid is up. Adds product to inventory. Checks for duplicates and if all fields have information.
                 case 0:
                     bool isName = itemAdd.name.Text.Length > 0;
                     bool isDescription = itemAdd.description.Text.Length > 0;
@@ -655,12 +638,12 @@ namespace ProductManager
                     itemAdd.imageURL = "";
                     break;
 
-                    //If delete product grid is up.
+                //If delete product grid is up.
                 case 1:
                     MessageBox.Show("There's nothing to submit!");
                     break;
 
-                    //If discount grid is up. Checks for duplicates, adds new codes.
+                //If discount grid is up. Checks for duplicates, adds new codes.
                 case 2:
                     string key = discount.discountKeyBox.Text.ToLower();
                     decimal value = decimal.Parse(discount.discountValueBox.Text) / 100;
@@ -678,7 +661,7 @@ namespace ProductManager
                     discount.discountValueBox.Text = "";
                     break;
 
-                    //If start grid is up
+                //If start grid is up
                 default:
                     MessageBox.Show("Please select an option!");
                     break;
