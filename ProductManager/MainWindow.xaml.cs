@@ -13,6 +13,7 @@ namespace ProductManager
     /// </summary>
     public class Discount
     {
+        //Variables
         public Label discountKeyLabel;
 
         public TextBox discountKeyBox;
@@ -26,6 +27,10 @@ namespace ProductManager
         public Dictionary<string, decimal> discountCodes = new Dictionary<string, decimal>();
         public string filePath = @"C:\Windows\Temp\JJSTORE\Documents\DiscountCodes.csv";
 
+        /// <summary>
+        /// Creates and shows discount grid
+        /// </summary>
+        /// <returns></returns>
         public Grid ShowDiscountGrid()
         {
             ReadDiscountCodes(filePath);
@@ -121,6 +126,11 @@ namespace ProductManager
             return grid;
         }
 
+        /// <summary>
+        /// Deletes seleted code
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DeleteDiscount(object sender, RoutedEventArgs e)
         {
             if (discountCodeList.SelectedIndex >= 0)
@@ -134,6 +144,10 @@ namespace ProductManager
             UpdateCSVFile(filePath);
         }
 
+        /// <summary>
+        /// Reads all existing codes from Temp and add to a list
+        /// </summary>
+        /// <param name="filePath"></param>
         public void ReadDiscountCodes(string filePath)
         {
             var lines = File.ReadLines(filePath).Select(a => a.Split(';')).ToList();
@@ -143,6 +157,9 @@ namespace ProductManager
             }
         }
 
+        /// <summary>
+        /// Clears list box to avoid duplicates then updates with latest list
+        /// </summary>
         public void UpdateListBox()
         {
             discountCodeList.Items.Clear();
@@ -152,6 +169,11 @@ namespace ProductManager
             }
         }
 
+        /// <summary>
+        /// Stops user from anything but numbers in  code value textbox
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Integers_KeyDown(object sender, KeyEventArgs e)
         {
             var digitkeys = e.Key >= Key.D0 && e.Key <= Key.D9;
@@ -167,8 +189,13 @@ namespace ProductManager
             }
         }
 
+        /// <summary>
+        /// Overwrites CSV in Temp with updated information
+        /// </summary>
+        /// <param name="filePath"></param>
         public void UpdateCSVFile(string filePath)
         {
+            
             StreamWriter sw = new StreamWriter(filePath, false);
             foreach (var code in discountCodes)
             {
@@ -183,6 +210,7 @@ namespace ProductManager
     /// </summary>
     public class ItemAdd
     {
+        ///Variables
         public TextBox name;
 
         public TextBox description;
@@ -199,6 +227,10 @@ namespace ProductManager
 
         public OpenFileDialog fileDialog = new OpenFileDialog();
 
+        /// <summary>
+        /// Creates and shows add product grid
+        /// </summary>
+        /// <returns></returns>
         public Grid ShowItemAdd()
         {
             Grid grid = new Grid();
@@ -303,6 +335,7 @@ namespace ProductManager
                 VerticalContentAlignment = VerticalAlignment.Center,
                 HorizontalContentAlignment = HorizontalAlignment.Center
             };
+           //Lets user search for an image locally
             imageSelect.Click += OpenDialog;
             stackPanel.Children.Add(imageSelect);
 
@@ -311,6 +344,11 @@ namespace ProductManager
             return grid;
         }
 
+        /// <summary>
+        /// Reads inventory list from Temp
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         public List<string> ReadInventory(List<string[]> file)
         {
             List<string> products = new List<string>();
@@ -322,6 +360,11 @@ namespace ProductManager
             return products;
         }
 
+        /// <summary>
+        /// Stops user from anything but numbers in price textbox
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Integers_KeyDown(object sender, KeyEventArgs e)
         {
             var digitkeys = e.Key >= Key.D0 && e.Key <= Key.D9;
@@ -337,6 +380,11 @@ namespace ProductManager
             }
         }
 
+        /// <summary>
+        /// Lets user search for images and show path of chosen in imageURLLabel
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OpenDialog(object sender, RoutedEventArgs e)
         {
             bool? isOK = true;
@@ -353,10 +401,15 @@ namespace ProductManager
     /// </summary>
     public class ItemRemove
     {
+        //Variables
         public ListBox productList;
         public string filePath = @"C:\Windows\Temp\JJSTORE\Documents\Inventory.csv";
         public List<string[]> file;
 
+        /// <summary>
+        /// Creates and shows delete product grid
+        /// </summary>
+        /// <returns></returns>
         public Grid ShowItemHandler()
         {
             file = File.ReadLines(filePath).Select(a => a.Split(';')).ToList();
@@ -392,6 +445,9 @@ namespace ProductManager
             return grid;
         }
 
+        /// <summary>
+        /// Clears product list to avoid duplicates and then updates list from Temp
+        /// </summary>
         private void UpdateListBox()
         {
             productList.Items.Clear();
@@ -401,6 +457,11 @@ namespace ProductManager
             }
         }
 
+        /// <summary>
+        /// Deletes selected product
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
             if (productList.SelectedIndex >= 0)
@@ -419,6 +480,10 @@ namespace ProductManager
             }
         }
 
+        /// <summary>
+        /// Overwrites CSV in Temp with latest information
+        /// </summary>
+        /// <param name="filePath"></param>
         public void UpdateCSVFile(string filePath)
         {
             StreamWriter sw = new StreamWriter(filePath, false);

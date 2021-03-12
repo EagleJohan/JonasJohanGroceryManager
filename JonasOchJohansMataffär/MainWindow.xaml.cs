@@ -1082,7 +1082,7 @@ namespace JonasOchJohansMataffär
         /// </summary>
         /// <param name="file"></param>
         /// <param name="products"></param>
-        private void ReadOfferings(List<string[]> file, List<Product> products)
+        public static void ReadOfferings(List<string[]> file, List<Product> products)
         {
             foreach (var line in file)
             {
