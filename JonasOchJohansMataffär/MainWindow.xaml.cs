@@ -254,7 +254,7 @@ namespace JonasOchJohansMataffär
         }
 
         /// <summary>
-        /// Checks quantity textbox for ???
+        /// Aligns selection to the right
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -265,7 +265,7 @@ namespace JonasOchJohansMataffär
         }
 
         /// <summary>
-        /// Sets value in quantity textbox to 1 if the value is lower
+        /// Sets value in quantity textbox to 1 if the value is lower than 1
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
