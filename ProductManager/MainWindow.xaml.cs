@@ -151,6 +151,7 @@ namespace ProductManager
         public void ReadDiscountCodes(string filePath)
         {
             var lines = File.ReadLines(filePath).Select(a => a.Split(';')).ToList();
+            discountCodes.Clear();
             foreach (var line in lines)
             {
                 discountCodes.Add(line[0], decimal.Parse(line[1]));
@@ -561,7 +562,7 @@ namespace ProductManager
                 MaxHeight = 20
             };
             manageSelection.Items.Add("Add new item");
-            manageSelection.Items.Add("Manage offerings");
+            manageSelection.Items.Add("Delete items");
             manageSelection.Items.Add("Manage discounts");
             manageSelection.SelectionChanged += ManageSelection_SelectionChanged;
             grid.Children.Add(manageSelection);
